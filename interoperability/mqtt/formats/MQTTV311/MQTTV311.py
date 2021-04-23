@@ -60,6 +60,7 @@ def MessageType(byte):
 
 def getPacket(aSocket):
   "receive the next packet"
+  aSocket.settimeout(10000)
   buf = aSocket.recv(1) # get the first byte fixed header
   if len(buf) == 0:
     return None
@@ -73,6 +74,7 @@ def getPacket(aSocket):
   multiplier = 1
   remlength = 0
   while 1:
+    aSocket.settimeout(10000)
     next = aSocket.recv(1)
     if len(next) == 0:
       return None
@@ -87,6 +89,7 @@ def getPacket(aSocket):
   if remlength > 0:
     while len(rest) < remlength:
       before = len(rest)
+      aSocket.settimeout(10000)
       rest += aSocket.recv(remlength-len(rest))
       if len(rest) == before: # no data was read
         # as we have no timeout on the read, no data probably means a socket error

@@ -134,7 +134,10 @@ class ClientSockets:
 		self.real = real
 		self.sock = None
 		if self.real:
+			
+			socket.setdefaulttimeout(10000)
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			self.sock.settimeout(10000)
 		else:
 			self.connected = False
 			self.failurePending = False
