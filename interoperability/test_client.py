@@ -214,9 +214,9 @@ class Test(unittest.TestCase):
     clientid1 = "test-ljh@1RK24W"  #开启鉴权后clientid格式为username@appkey 例如：shuang1@easemob-demo#chatdemoui
     clientid2 = "test-ljh2@1RK24W"
     appkey = "easemob-demo#chatdmeoui"
-    no_appkey = ""
-    error_appkey = ""
-    error_cliendid = {"error_appkey":"shuang2@"+error_appkey,"no_key":"shuang2@" + no_appkey,"correct_appkey_name":"shuang110@"+appkey}
+    noappkey = "b"
+    errorappkey = "a"
+    error_cliendid = {"error_appkey":"shuang2@"+errorappkey,"no_key":"shuang2@" + noappkey,"correct_appkey_name":"shuang110@"+appkey}
 
     nosubscribe_topics = ("test/nosubscribe",)
     host = "172.17.1.160"
@@ -269,7 +269,7 @@ class Test(unittest.TestCase):
       print("Basic test", "succeeded" if succeeded else "failed")
       self.assertEqual(succeeded, True)
       return succeeded
-    
+  
     def test_cleansession_false(self):
       print("cleansession false test starting")
       global aclient
@@ -849,7 +849,7 @@ class Test(unittest.TestCase):
         return callback2.messages
   
     #clientid中存在错误的appkey
-    @unittest.skipIf(authentication == True,"Not Run")
+    @unittest.skip("not run")
     def test_clientid_error_appkey(self):
         print("clientid_error_appkey test starting")
         clientid = error_cliendid["error_appkey"]
@@ -880,7 +880,7 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         print("clientid_no_appkey test starting")
     
-    def clientidtest(self,clientid,username,password):
+    def test_clientid_same(self,clientid,username,password):
         print("clientid same test starting")
         succeeded = True
         try:
@@ -984,6 +984,29 @@ class Test(unittest.TestCase):
         print("Offline message queueing test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+    """
+        1.离线消息最大条数为10条
+    """
+    def test_offline_message_ten(self):
+        print("test offline message is ten staring")
+        number = 5
+        succeeded =  True
+        connect = aclient.connect(host=host,port=port,cleansession=False)
+        print(wildtopics[0],topics[1])
+        aclient.subscribe([wildtopics[0]],[2])
+        time.sleep(.1)
+        aclient.disconnect
+        connect = bclient.connect(host=host,port=port,cleansession=True)
+        for index in range number:
+            bclient.publish(topics[1],b'message',2,retained=False)
+        time.sleep(2)
+        for index in range number:
+            bclient.publish(topics[1],b'1',2,retained=False)
+        time.sleep(2)
+        connect = aclient.connect(host=host,port=port,cleansession=False)
+        print(callback.messages)
+        
 
     def test_overlapping_subscriptions(self):
         # overlapping subscriptions. When there is more than one matching subscription for the same client for a topic,
@@ -1099,7 +1122,7 @@ class Test(unittest.TestCase):
         aclient.publish(nosubscribe_topics[0], b"overlapping topic filters", 2)
         time.sleep(.2)
         assert len(callback.messages) == 1,"callback messages length is %d"%(len(callback.messages))
-        
+        aclient.disconnect()
       except:
         traceback.print_exc()
         succeeded = False
@@ -1250,10 +1273,10 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
-    #验证topic层级为9层（允许最大层级为8层）
+    #验证topic层级为9层（目前只限制最大字符，未限制层数）
     def test_sixth_topic_format(self):
-        print("topics format topicA/B/C/D/E/F/G/H/I test starting")   #由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试
-        succeeded = False
+        print("topics format topicA/B/C/D/E/F/G/H/I test starting")
+        succeeded = True
         #订阅topic层级为9层
         try:
             connect = aclient.connect(host=host,port=port,cleansession=True)
@@ -1262,7 +1285,7 @@ class Test(unittest.TestCase):
             assert len(callback.subscribeds) == 0
             aclient.disconnect()
         except:
-            succeeded =  True
+            succeeded =  False
         #发布消息topic层级为9层
         try:
             connect = bclient.connect(host=host,port=port,cleansession=True)
@@ -1271,7 +1294,7 @@ class Test(unittest.TestCase):
             time.sleep(1)
             bclient.disconnect()
         except:
-            succeeded =  True
+            succeeded =  False
         print("topics format topicA/B/C/D/E/F/G/H/I  test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
@@ -1280,7 +1303,7 @@ class Test(unittest.TestCase):
     
     #验证topic层级为8层
     def test_seventh_topic_format(self):
-        print("topics format topic/a/b/c/d/e/f/g test starting")   #由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试
+        print("topics format topic/a/b/c/d/e/f/g test starting")
         succeeded = True
         message = b"test"
         #订阅和发布topic层级为8层
@@ -1299,6 +1322,9 @@ class Test(unittest.TestCase):
         print("topics format topic/a/b/c/d/e/f/g  test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+
+
     #验证topic中字符串长度大于64时，订阅和发布失败
     def test_eighth_topic_format(self):
         special_topic = "12345678901234567890123456789012345678901234567890123456789012345"
@@ -1558,14 +1584,14 @@ if __name__ == "__main__":
     print("hostname", host, "port", port)
  
     # for i in range(iterations):
-    #   unittest.main()
+    #     unittest.main()
 #     #创建测试集
     suite = unittest.TestSuite()
-    # suite.addTest(Test("test_offline_message_queueing"))
+    suite.addTest(Test("test_sixth_topic_format"))
     # suite.addTest(Test("test_seventh_topic_format"))
     # suite.addTest(Test("test_will_message_qos_one"))
     # suite.addTest(Test("test_zero_length_clientid"))
-    suite.addTest(Test("test_online_retained_messages"))
+    # suite.addTest(Test("test_online_retained_messages"))
     # suite.addTest(Test("test_nosub_reatin_message"))
 
     
