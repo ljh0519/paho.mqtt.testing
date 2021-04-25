@@ -106,7 +106,7 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     callback.clear()
     callback2.clear()
     #用户B连接
-    bclient.connect(host=host, port=port, cleansession=True)
+    bclient.connect(host=host, port=port, cleansession=True,username=username2,password=password2)
     print(wildtopics[6],topics[1])
     bclient.subscribe([wildtopics[6]], [sub_qos])
     time.sleep(1)
@@ -115,7 +115,7 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     bclient.publish(topics[1], message, pub_qos, retained=False)
     time.sleep(2)
     #用户a连接
-    aclient.connect(host=host, port=port, cleansession=True)
+    aclient.connect(host=host, port=port, cleansession=True,username=username1,password=password1)
     aclient.publish(topics[1], message, pub_qos, retained=False)
     time.sleep(1)
     bclient.disconnect()
@@ -128,9 +128,9 @@ def will_message_qos(self,willQos=None,subQos=None):
     callback2.clear()
     assert len(callback2.messages) == 0, callback2.messages
     connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
-      willTopic=topics[2], willMessage=b"test will message qos zero", keepalive=2,willQoS=willQos)
+      willTopic=topics[2], willMessage=b"test will message qos zero", keepalive=2,willQoS=willQos,username=username1,password=password1)
     # #assert connack.flags == 0x00 # Session present
-    connack = bclient.connect(host=host, port=port, cleansession=False)
+    connack = bclient.connect(host=host, port=port, cleansession=False,username=username2,password=password2)
     bclient.subscribe([topics[2]], [subQos])
     time.sleep(.1)
     aclient.terminate()
@@ -212,17 +212,17 @@ def usage():
 """)
 
 class Test(unittest.TestCase):
-    global topics, wildtopics, nosubscribe_topics,host,port,clientid1,clientid2,authentication,username,orgpassword,apppassword,error_cliendid
+    global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid
     authentication = False
     host = "172.17.1.160"   #发送地址
     port = 1883 #发送端口
-    username = "shuang"
-    orgpassword = "$t$YWMt0XYa3p3FEeuJ29MjuiXwsgAAAAAAAAAAAAAAAAAAAAFDtjwasNNKD6W3CET2O3RNAQMAAAF41K2eOgBPGgB7wnftLV7vUoduVpU8pQF9135qUFD1UO2l2HQ57OkB3g"
-    apppassword = "$t$YWMtr2pv5J3FEeuy4xGo09qdoQAAAAAAAAAAAAAAAAAAAAHywVI9t0RIZr9nfTCWbJvFAgMAAAF41Ky_GwBPGgDy9gnYcIUcK3qfB_HAXZ4TUC8FxCM1GesUxiXocoHnWA"
+    username1,username2 = "",""  #用户名称
+    password1 = "$t$YWMt0XYa3p3FEeuJ29MjuiXwsgAAAAAAAAAAAAAAAAAAAAFDtjwasNNKD6W3CET2O3RNAQMAAAF41K2eOgBPGgB7wnftLV7vUoduVpU8pQF9135qUFD1UO2l2HQ57OkB3g"  #用户密码，实际为与用户匹配的token
+    password2 = "$t$YWMtr2pv5J3FEeuy4xGo09qdoQAAAAAAAAAAAAAAAAAAAAHywVI9t0RIZr9nfTCWbJvFAgMAAAF41Ky_GwBPGgDy9gnYcIUcK3qfB_HAXZ4TUC8FxCM1GesUxiXocoHnWA"  #用户密码，实际为与用户匹配的token
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
     wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
     nosubscribe_topics = ("test/nosubscribe",)
-    clientid1 = "test-ljh@1RK24W"  #开启鉴权后clientid格式为username@appkey 例如：shuang1@easemob-demo#chatdemoui
+    clientid1 = "test-ljh@1RK24W"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
     clientid2 = "test-ljh2@1RK24W"
     length_clientid = "123456789012345678901234567890123456789012345678901234567@1RK24W"
     appid = {"right_appid":"","error_appid":"","noappid":"123"} #构建appid
@@ -230,7 +230,6 @@ class Test(unittest.TestCase):
     error_cliendid = {"error_format_one":deviceid["right_deviceid"] + "#" + appid["right_appid"],\
         "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
         "no_key":deviceid["right_deviceid"] + "@" + appid["noappid"],\
-        "correct_appkey_name":"shuang110@"+appkey,\
         "overlength_clientid":"123456789012345678901234567890123456789012345678901234567@1RK24W123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]}
     
     @classmethod
@@ -260,10 +259,10 @@ class Test(unittest.TestCase):
 #       global aclient
       succeeded = True
       try:
-        aclient.connect(host=host, port=port)
+        aclient.connect(host=host, port=port,username=username1,password=password1)
         aclient.disconnect()
 
-        connack = aclient.connect(host=host, port=port)
+        connack = aclient.connect(host=host, port=port,username=username1,password=password1)
         # #assert connack.flags == 0x00 # Session present
         aclient.subscribe([topics[0]], [2])
         aclient.publish(topics[0], b"qos 0")
@@ -280,7 +279,46 @@ class Test(unittest.TestCase):
       print("Basic test", "succeeded" if succeeded else "failed")
       self.assertEqual(succeeded, True)
       return succeeded
-  
+
+
+
+    """
+        1.验证用户名称（username）与密码不一致（token）
+    """
+    def test_login_username_and_paw_donot_math(self):
+        print("test_login_username_and_paw_donot_math starting")
+        succeeded = False
+
+        try:
+            connect = aclient.connect(host=host,port=port,username=username1,password=password2)
+            print("login succeed")
+        
+        except:
+            traceback.print_exc()
+            succeeded = True
+        print("test_login_username_and_paw_donot_math starting %s""succeeded" if succeeded else "failed")
+        assert succeeded == True
+
+
+    """
+        1.验证用户名称（username、password）与appid不匹配
+    """
+    def test_login_username_and_appid_donot_math(self):
+        print("test_login_username_and_appid_donot_math starting")
+        succeeded = False
+        try:
+            aclient0 = mqtt_client.Client(clientid2.encode("utf-8"))
+            connect = aclient0.connect(host=host,port=port,username=username1,password=password1)
+            print("login succeed")
+        
+        except:
+            traceback.print_exc()
+            succeeded = True
+        print("test_login_username_and_appid_donot_math starting %s""succeeded" if succeeded else "failed")
+        assert succeeded == True
+
+
+
 
     """
         1。默认是session保存时长为1800分钟，为了方便测试可以找研发修改session默认时长（此case设置默认时长为120s）
@@ -289,12 +327,12 @@ class Test(unittest.TestCase):
         print("The test session defaults to 120s")
         succeeded = True
         try:
-            connect =  aclient.connect(host=host,port=port,cleansession=False)
+            connect =  aclient.connect(host=host,port=port,cleansession=False,username=username1,password=password1)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             aclient.disconnect()
             time.sleep(115)
-            connect =  aclient.connect(host=host,port=port,cleansession=False)
+            connect =  aclient.connect(host=host,port=port,cleansession=False,username=username1,password=password1)
             time.sleep(.1)
             aclient.publish(topic[1],b"test session",1,retained=False)
             time.sleep(1)
@@ -307,7 +345,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = False
         print("The test session defaults to 120s %s""succeeded" if succeeded else "failed")
-        assert(succeeded,True)
+        assert succeeded == True
 
 
     """
@@ -332,7 +370,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = True
         print("The test session defaults to 120s %s""succeeded" if succeeded else "failed")
-        assert(succeeded,True)
+        self.assertTrue(succeeded)
 
     def test_cleansession_false(self):
       print("cleansession false test starting")
@@ -341,7 +379,7 @@ class Test(unittest.TestCase):
       try:
         callback.clear()
         callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=False)
+        connack = aclient.connect(host=host, port=port,cleansession=False,username=username1,password=password1)
         print(connack.flags)
         # #assert connack.flags == 0x00 # Session present
         aclient.subscribe([topics[1]], [2])
@@ -349,10 +387,10 @@ class Test(unittest.TestCase):
         print(callback.subscribeds)
         aclient.disconnect()
         time.sleep(2)
-        connack = aclient.connect(host=host, port=port,cleansession=False)
+        connack = aclient.connect(host=host, port=port,cleansession=False,username=username1,password=password1)
         print(callback.subscribeds)
         time.sleep(2)
-        connack = bclient.connect(host=host, port=port,cleansession=True)
+        connack = bclient.connect(host=host, port=port,cleansession=True,username=username2,password=password2)
         bclient.publish(topics[1], b"qos1", 1, retained=False)
         time.sleep(1)
         aclient.disconnect()
@@ -959,8 +997,10 @@ class Test(unittest.TestCase):
     def test_cliendid_contains_no_appid(self):
         print("cliendid contains no appid test starting")
         clientid = error_cliendid["no_appid"]
-        print(clientid,username,orgpassword)
-        succeeded = clientidtest(self,clientid,username,apppassword)
+        username = username1
+        password = password1
+        print(clientid,username,password)
+        succeeded = clientidtest(self,clientid,username,password)
         self.assertEqual(succeeded, True)
         print("cliendid contains no appid test starting")
 
@@ -975,10 +1015,10 @@ class Test(unittest.TestCase):
         succeeded = True
         try:
             client0 = mqtt_client.Client(length_clientid.encode("utf-8"))
-            connect = bclient.connect(host=host,port=port,cleansession=True)
+            connect = bclient.connect(host=host,port=port,cleansession=True,username=username2,password=password2)
             print(wildtopics[0],topics[1])
             bclient.subscribe([wildtopics[0]],[2])
-            connect = client0.connect(host=host,port=port,cleansession=True)
+            connect = client0.connect(host=host,port=port,cleansession=True,username=username1,password=password1)
             client0.publish(topic[1],b"test",1,retained=False)
             time.sleep(.1)
             print(len(callback2.messages))
@@ -988,7 +1028,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = False
         print("ClientId has a maximum length of 64 is %s""succeed"if succeeded else "failed")
-        assert(succeeded,True)
+        assert succeeded == True
 
 
 
@@ -1005,7 +1045,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = True
         print("ClientId has a maximum length of 65 is %s""succeed"if succeeded else "failed")
-        assert(succeeded,True)
+        self.assertEqual(succeeded,True)
 
 
 
@@ -1039,11 +1079,16 @@ class Test(unittest.TestCase):
         return succeeded
 
 
-    def test_clientid_error_appkey(self):
+    """
+        1.
+    """
+    def test_clientid_error_appid(self):
         print("clientid_error_appkey test starting")
         clientid = error_cliendid["error_appkey"]
-        print(clientid,username,orgpassword)
-        succeeded = clientidtest(self,clientid,username,orgpassword)
+        username = username1
+        password = password1
+        print(clientid,username,password)
+        succeeded = clientidtest(self,clientid,username,password)
         self.assertEqual(succeeded, True)
         print("clientid_error_appkey test starting")
         
