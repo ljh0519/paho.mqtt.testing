@@ -60,6 +60,7 @@ def cleanup():
     
     for clientid in clientids:
         curclient = mqtt_client.Client(clientid.encode("utf-8"))
+        curclient.setUserName(username1, password1)
         curclient.connect(host=host, port=port, cleansession=True)
         time.sleep(.1)
         curclient.disconnect()
@@ -69,6 +70,7 @@ def cleanup():
     callback = Callbacks()
     curclient = mqtt_client.Client(clientid1.encode("utf-8"))
     curclient.registerCallback(callback)
+    curclient.setUserName(username1, password1)
     curclient.connect(host=host, port=port, cleansession=True)
     curclient.subscribe(["#"], [0])
     time.sleep(2) # wait for all retained messages to arrive
@@ -89,7 +91,7 @@ def topictest(self,sub_index=None,pub_index=None,message=None):
     bclient.connect(host=host, port=port, cleansession=True)
     bclient.subscribe([wildtopics[sub_index]], [2])
     time.sleep(1) # wait for all retained messages, hopefully
-#     callback2.clear()
+    #callback2.clear()
     bclient.publish(topics[pub_index], message, 1, retained=False)
     time.sleep(2)
     #用户a连接
@@ -106,7 +108,7 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     callback.clear()
     callback2.clear()
     #用户B连接
-    bclient.connect(host=host, port=port, cleansession=True,username=username2,password=password2)
+    bclient.connect(host=host, port=port, cleansession=True)
     print(wildtopics[6],topics[1])
     bclient.subscribe([wildtopics[6]], [sub_qos])
     time.sleep(1)
@@ -115,7 +117,7 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     bclient.publish(topics[1], message, pub_qos, retained=False)
     time.sleep(2)
     #用户a连接
-    aclient.connect(host=host, port=port, cleansession=True,username=username1,password=password1)
+    aclient.connect(host=host, port=port, cleansession=True)
     aclient.publish(topics[1], message, pub_qos, retained=False)
     time.sleep(1)
     bclient.disconnect()
@@ -128,9 +130,9 @@ def will_message_qos(self,willQos=None,subQos=None):
     callback2.clear()
     assert len(callback2.messages) == 0, callback2.messages
     connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
-      willTopic=topics[2], willMessage=b"test will message qos zero", keepalive=2,willQoS=willQos,username=username1,password=password1)
+      willTopic=topics[2], willMessage=b"test will message qos zero", keepalive=2,willQoS=willQos)
     # #assert connack.flags == 0x00 # Session present
-    connack = bclient.connect(host=host, port=port, cleansession=False,username=username2,password=password2)
+    connack = bclient.connect(host=host, port=port, cleansession=False)
     bclient.subscribe([topics[2]], [subQos])
     time.sleep(.1)
     aclient.terminate()
@@ -180,8 +182,8 @@ def clientidtest(self,clientid,username,apppassword):
             time.sleep(.1)
             client0.publish(topics[1],"test cliendid",2,retained=False)
             time.sleep(1)
-            print(callback.messages)
-            assert len(callback.messages) ==2
+            print(callback3.messages)
+            assert len(callback3.messages) ==2
         except:
             fails = False
         self.assertEqual(fails, True)
@@ -212,21 +214,38 @@ def usage():
 """)
 
 class Test(unittest.TestCase):
-    global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid
+    global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid,\
+        length_clientid,length_topic
     authentication = False
-    host = "172.17.1.160"   #发送地址
-    port = 1883 #发送端口
-    username1,username2 = "",""  #用户名称
-    password1 = "$t$YWMt0XYa3p3FEeuJ29MjuiXwsgAAAAAAAAAAAAAAAAAAAAFDtjwasNNKD6W3CET2O3RNAQMAAAF41K2eOgBPGgB7wnftLV7vUoduVpU8pQF9135qUFD1UO2l2HQ57OkB3g"  #用户密码，实际为与用户匹配的token
-    password2 = "$t$YWMtr2pv5J3FEeuy4xGo09qdoQAAAAAAAAAAAAAAAAAAAAHywVI9t0RIZr9nfTCWbJvFAgMAAAF41Ky_GwBPGgDy9gnYcIUcK3qfB_HAXZ4TUC8FxCM1GesUxiXocoHnWA"  #用户密码，实际为与用户匹配的token
+
+    # 1.测试地址沙箱环境
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMtv7VM8qWzEeuemBHqqFRuSfLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5CKT4uwBPGgA50KRL36FHDllyLYzsevPPFvyUoiQUAYCd60kRk9noAA"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMtxtixfKWzEeuN-0H6LBdrT_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5CKUngwBPGgDX4tP5pw7HhtEMUS9Rz4jtiuNh7_YHIuGuXuj3eGdJqw"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+
+
+    #本地
+    host = "172.17.1.160"
+    port = 1883
+    username1,username2 = b"test1",b"test2"  #用户名称
+    password1 = b"$t$YWMtv7VM8qWzEeuemBHqqFRuSfLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5CKT4uwBPGgA50KRL36FHDllyLYzsevPPFvyUoiQUAYCd60kRk9noAA"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMtxtixfKWzEeuN-0H6LBdrT_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5CKUngwBPGgDX4tP5pw7HhtEMUS9Rz4jtiuNh7_YHIuGuXuj3eGdJqw"
+    clientid1 = "ckjaakjncalnla@1RK24W"
+    clientid2 = "ckjaakjncalnla1@1RK24W"
+
+
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
     wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
     nosubscribe_topics = ("test/nosubscribe",)
-    clientid1 = "test-ljh@1RK24W"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "test-ljh2@1RK24W"
-    length_clientid = "123456789012345678901234567890123456789012345678901234567@1RK24W"
-    appid = {"right_appid":"","error_appid":"","noappid":"123"} #构建appid
-    deviceid = {"right_deviceid":"","error_deviceid":""}    #构建deviceid
+    length_topic = "123456789012345678901234567890123456789012345678901234567890"
+
+    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    length_clientid = "123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]
+    deviceid = {"right_deviceid":"testdeviceid1","error_deviceid":""}    #构建deviceid
     error_cliendid = {"error_format_one":deviceid["right_deviceid"] + "#" + appid["right_appid"],\
         "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
         "no_key":deviceid["right_deviceid"] + "@" + appid["noappid"],\
@@ -235,7 +254,7 @@ class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
       global callback, callback2, aclient, bclient
-      cleanup()
+    #   cleanup()
 
       callback = Callbacks()
       callback2 = Callbacks()
@@ -243,9 +262,14 @@ class Test(unittest.TestCase):
       #aclient = mqtt_client.Client(b"\xEF\xBB\xBF" + "myclientid".encode("utf-8"))
       aclient = mqtt_client.Client(clientid1.encode("utf-8"))
       aclient.registerCallback(callback)
+      aclient.setUserName(username1, password1)
 
       bclient = mqtt_client.Client(clientid2.encode("utf-8"))
       bclient.registerCallback(callback2)
+      bclient.setUserName(username2, password2)
+
+    #   client0 = mqtt_client.Client(clientid2.encode("utf-8"))
+    #   client0.registerCallback(callback3)
     
     def setUp(self):
         callback.clear()
@@ -255,30 +279,31 @@ class Test(unittest.TestCase):
         cleanup()
 
     def testBasic(self):
-      print("Basic test starting")
-#       global aclient
-      succeeded = True
-      try:
-        aclient.connect(host=host, port=port,username=username1,password=password1)
-        aclient.disconnect()
+        print("Basic test starting")
+        #       global aclient
+        succeeded = True
+        try:
+            # print(username1,username2)
+            aclient.connect(host=host, port=port)
+            aclient.disconnect()
 
-        connack = aclient.connect(host=host, port=port,username=username1,password=password1)
-        # #assert connack.flags == 0x00 # Session present
-        aclient.subscribe([topics[0]], [2])
-        aclient.publish(topics[0], b"qos 0")
-        aclient.publish(topics[0], b"qos 1", 1)
-        aclient.publish(topics[0], b"qos 2", 2)
-        time.sleep(2)
-        aclient.disconnect()
-        print(callback.messages)
-        self.assertEqual(len(callback.messages), 3)
-      except:
-        traceback.print_exc()
-        succeeded = False
-        
-      print("Basic test", "succeeded" if succeeded else "failed")
-      self.assertEqual(succeeded, True)
-      return succeeded
+            connack = aclient.connect(host=host, port=port)
+            # #assert connack.flags == 0x00 # Session present
+            aclient.subscribe([topics[0]], [2])
+            aclient.publish(topics[0], b"qos 0")
+            aclient.publish(topics[0], b"qos 1", 1)
+            aclient.publish(topics[0], b"qos 2", 2)
+            time.sleep(2)
+            aclient.disconnect()
+            print(callback.messages)
+            self.assertEqual(len(callback.messages), 3)
+        except:
+            traceback.print_exc()
+            succeeded = False
+
+        print("Basic test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
 
 
 
@@ -308,7 +333,7 @@ class Test(unittest.TestCase):
         succeeded = False
         try:
             aclient0 = mqtt_client.Client(clientid2.encode("utf-8"))
-            connect = aclient0.connect(host=host,port=port,username=username1,password=password1)
+            connect = aclient0.connect(host=host,port=port)
             print("login succeed")
         
         except:
@@ -327,12 +352,12 @@ class Test(unittest.TestCase):
         print("The test session defaults to 120s")
         succeeded = True
         try:
-            connect =  aclient.connect(host=host,port=port,cleansession=False,username=username1,password=password1)
+            connect =  aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             aclient.disconnect()
             time.sleep(115)
-            connect =  aclient.connect(host=host,port=port,cleansession=False,username=username1,password=password1)
+            connect =  aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(.1)
             aclient.publish(topic[1],b"test session",1,retained=False)
             time.sleep(1)
@@ -379,7 +404,7 @@ class Test(unittest.TestCase):
       try:
         callback.clear()
         callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=False,username=username1,password=password1)
+        connack = aclient.connect(host=host, port=port,cleansession=False)
         print(connack.flags)
         # #assert connack.flags == 0x00 # Session present
         aclient.subscribe([topics[1]], [2])
@@ -387,10 +412,10 @@ class Test(unittest.TestCase):
         print(callback.subscribeds)
         aclient.disconnect()
         time.sleep(2)
-        connack = aclient.connect(host=host, port=port,cleansession=False,username=username1,password=password1)
+        connack = aclient.connect(host=host, port=port,cleansession=False)
         print(callback.subscribeds)
         time.sleep(2)
-        connack = bclient.connect(host=host, port=port,cleansession=True,username=username2,password=password2)
+        connack = bclient.connect(host=host, port=port,cleansession=True)
         bclient.publish(topics[1], b"qos1", 1, retained=False)
         time.sleep(1)
         aclient.disconnect()
@@ -511,6 +536,11 @@ class Test(unittest.TestCase):
         self.assertTrue(succeeded)        
         
 
+
+    """
+        1.验证newsocket为false时，再次连接会连接失败
+        
+    """
     def test_newsocket_false(self):
         print("the test newcocket is false starting")
         succeeded = True
@@ -521,8 +551,9 @@ class Test(unittest.TestCase):
         except Exception as exc:
             pass # exception expected
         print("the newcocket test","succeeded" if succeeded else "failed")
-        self.assertTrue(succeeded)
+        self.assertFalse(succeeded)
     
+
     """
         1.用户A使用错误的端口名称连接——连接失败
     """
@@ -779,6 +810,10 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
+
+    """
+        1.测试遗嘱消息
+    """
     def test_will_message(self):
       # will messages
       print("Will message test starting")
@@ -805,8 +840,12 @@ class Test(unittest.TestCase):
       print("Will message test", "succeeded" if succeeded else "failed")
       self.assertEqual(succeeded, True)
       return succeeded
-  
-    #未订阅遗嘱topic不会收到消息
+
+
+
+    """
+    1.未订阅遗嘱topic不会收到消息
+    """
     def test_nosub_will_message(self):
         print("nosub will message test starting")
         succeeded = True
@@ -831,7 +870,8 @@ class Test(unittest.TestCase):
         print("nosub will message test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
-  
+    
+
     #修改遗嘱消息
     def test_revise_will_message(self):
         print("revise will message test starting")
@@ -967,11 +1007,11 @@ class Test(unittest.TestCase):
         1.使用错误的cliendid格式，例如：deviceid#id
     """
     @unittest.skipIf(authentication == True,"not run")
-    def test_error_clientid_format_one(self):
+    def test_clientid_error_format_one(self):
         print("error cliendid format \"eviceid#id\"test starting")
         clientid = error_cliendid["error_format_one"]
-        print(clientid,username,apppassword)
-        succeeded = clientidtest(self,clientid,username,apppassword)
+        print(clientid,username1,password1)
+        succeeded = clientidtest(self,clientid,username1,password1)
         self.assertEqual(succeeded, True)
         print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
 
@@ -979,11 +1019,12 @@ class Test(unittest.TestCase):
         1.使用错误的cliendid格式，例如：deviceidid
     """
     @unittest.skipIf(authentication == True,"not run")
-    def test_error_clientid_format_two(self):
+    def test_clientid_error_format_two(self):
         print("error cliendid format \'deviceidid\'test starting")
         clientid = error_cliendid["error_format_two"]
-        print(clientid,username,apppassword)
-        succeeded = clientidtest(self,clientid,username,apppassword)
+        password = password1
+        print(clientid,username1,password)
+        succeeded = clientidtest(self,clientid,username1,password)
         self.assertEqual(succeeded, True)
         print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
 
@@ -1014,16 +1055,19 @@ class Test(unittest.TestCase):
         print("Starting:ClientId has a maximum length of 64")
         succeeded = True
         try:
+            print("length clientid %d"%(len(length_clientid)))
             client0 = mqtt_client.Client(length_clientid.encode("utf-8"))
-            connect = bclient.connect(host=host,port=port,cleansession=True,username=username2,password=password2)
+            client0.registerCallback(callback)
+            client0.setUserName(username1, password1)
+            connect = bclient.connect(host=host,port=port,cleansession=True)
             print(wildtopics[0],topics[1])
             bclient.subscribe([wildtopics[0]],[2])
-            connect = client0.connect(host=host,port=port,cleansession=True,username=username1,password=password1)
-            client0.publish(topic[1],b"test",1,retained=False)
+            connect = client0.connect(host=host,port=port,cleansession=True)
+            client0.publish(topics[1],b"test",1,retained=False)
             time.sleep(.1)
             print(len(callback2.messages))
             assert len(callback2.messages) == 1
-            self.assertEqual(allback2.messages[0][1],b"test")
+            self.assertEqual(callback2.messages[0][1],b"test")
         except:
             traceback.print_exc()
             succeeded = False
@@ -1044,7 +1088,7 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = True
-        print("ClientId has a maximum length of 65 is %s""succeed"if succeeded else "failed")
+        print("ClientId has a maximum length of 65 is %s""succeeded"if succeeded else "failed")
         self.assertEqual(succeeded,True)
 
 
@@ -1052,25 +1096,24 @@ class Test(unittest.TestCase):
     """
         1.测试设备使用相同的clientid登陆，先登陆的用户被挤掉
     """
-    def test_clientid_same(self,clientid,username,password):
+    def test_clientid_same_login(self,clientid,username,password):
         print("clientid same test starting")
-        print("目前是错误的case，待修改")
         succeeded = True
         try:
             client0 = mqtt_client.Client(clientid.encode("utf-8"))
-            fails = True
-            try:
-                client0.connect(host=host, port=port, cleansession=False,username=username,password=password) # should work
-            except:
-                fails = False
-            self.assertEqual(fails, True)
-            fails = True
-            try:
-                client0.connect(host=host, port=port, cleansession=True,username=username,password=password) # should work
-            except:
-                fails = False
-            self.assertEqual(fails, True)
-            client0.disconnect()
+            client0.registerCallback(callback)
+            client1 = mqtt_client.Client(clientid.encode("utf-8"))
+            client1.registerCallback(callback2)
+            client0.connect(host=host, port=port, cleansession=False) # 用户A登陆
+            print(wildtopics[0],topics[1])
+            client0.subscribe([wildtopics[0]],[2])
+            time.sleep(.1)
+            client1.connect(host=host, port=port, cleansession=True)  #使用相同的clientid再次登陆
+            client1.publish(topic[1],b"test clientid same connect",2,retained=False)
+            time.sleep(.1)
+            print(callback.messages)
+            print(callback2.messages)
+            assert len(callback2.messages) == 1
         except:
             traceback.print_exc()
             succeeded = False
@@ -1078,23 +1121,11 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
 
-
-    """
-        1.
-    """
-    def test_clientid_error_appid(self):
-        print("clientid_error_appkey test starting")
-        clientid = error_cliendid["error_appkey"]
-        username = username1
-        password = password1
-        print(clientid,username,password)
-        succeeded = clientidtest(self,clientid,username,password)
-        self.assertEqual(succeeded, True)
-        print("clientid_error_appkey test starting")
         
-
-    # 0 length clientid
-    def test_zero_length_clientid(self):
+    """
+        1.测试clientid长度为0
+    """
+    def test_clientid_zero_length(self):
         print("Zero length clientid test starting")
         succeeded = True
         try:
@@ -1120,40 +1151,52 @@ class Test(unittest.TestCase):
         return succeeded
 
 
-
+    """
+        1.测试离线消息
+    """
     def test_offline_message_queueing(self):
         succeeded = True
         try:
             # message queueing for offline clients
             callback.clear()
-    
+            #用户A登陆
             connack = aclient.connect(host=host, port=port, cleansession=False)
             print(connack)
             print(connack.flags)
+            #用户A订阅一个topic
             aclient.subscribe([wildtopics[5]], [2])
+            #用户B断开连接
             aclient.disconnect()
-    
+            #用户B登陆
             connack = bclient.connect(host=host, port=port, cleansession=True)
             print(connack)
             print(connack.flags)
-            # #assert connack.flags == 0x00 # Session present
+            #assert connack.flags == 0x00 # Session present
+            #用户B分别向"TopicA/B", "Topic/C", "TopicA/C"发送qos0、1、2消息
             bclient.publish(topics[1], b"qos 0", 0)
             bclient.publish(topics[2], b"qos 1", 1)
             bclient.publish(topics[3], b"qos 2", 2)
             time.sleep(2)
             bclient.disconnect()
-    
+            #用户A再次登陆
             connack = aclient.connect(host=host, port=port, cleansession=False)
             print(connack.flags)
-            assert connack.flags == 0x01 # Session present
+            # assert connack.flags == 0x01 # Session present
             time.sleep(2)
             aclient.disconnect()
+            #判断用户A收到离线消息（0的消息不会收到）
             print(callback.messages)
             assert len(callback.messages) in [2, 3], callback.messages
-            #目前排序是按照topic命名排序
-            self.assertEqual(callback.messages[0][1],b"qos 1")
-    #         self.assertEqual(callback.messages[1][1],b"qos 0")
-            self.assertEqual(callback.messages[1][1],b"qos 2")
+            for index in range(len(callback.messages)):
+                if callback.messages[index][1] == b"qos 1":
+                    print(callback.messages[index][1])
+                elif callback.messages[index][1] == b"qos 2":
+                    print(callback.messages[index][1])
+                else:
+                    print("the test fail")
+                    succeeded = False
+            # self.assertEqual(callback.messages[0][1],b"qos 1")
+            # self.assertEqual(callback.messages[1][1],b"qos 2")
             print("This server %s queueing QoS 0 messages for offline clients" % \
                 ("is" if len(callback.messages) == 3 else "is not"))
         except:
@@ -1231,20 +1274,22 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(.1)
             aclient.disconnect
+            time.sleep(3)
             connect = bclient.connect(host=host,port=port,cleansession=True)
             for index in range(number):
                 bclient.publish(topics[1],b'message %d'%(index),2,retained=False)
             time.sleep(2)
             for index in range(number):
-                bclient.publish(topics[1],b'message retained=true %d'%(index),2,retained=True)
+                bclient.publish(topics[1],b'message retained=true %d'%(index),1,retained=True)
             time.sleep(2)
             connect = aclient.connect(host=host,port=port,cleansession=False)
+            time.sleep(5)
             print(callback.messages)
+            aclient.disconnect()
+            bclient.disconnect()
         except:
             traceback.print_exc()
             succeeded = False
-        aclient.disconnect()
-        bclient.disconnect()
         print("the offline message number is %d"%(len(callback.messages)))
         assert len(callback.messages) == 10
         print("The maximum number of offline messages is 10 ""success" if succeeded else "failed" )
@@ -1256,37 +1301,83 @@ class Test(unittest.TestCase):
     """
         1.离线消息超过10条后，只保留十条，删除最老的数据
     """
-    def test_offline_message_eleven(self):
+    def test_offline_message_number_eleven(self):
         print("Staring：The maximum number of offline messages is 10")
         succeeded =  True
         try:
             connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
-            aclient.subscribe([wildtopics[0]],[2])
+            aclient.subscribe([wildtopics[0]],[1])
             time.sleep(.1)
-            aclient.disconnect
+            number = 6
+            aclient.disconnect()
+            time.sleep(5)   #等待断开连接
             connect = bclient.connect(host=host,port=port,cleansession=True)
-            for index in range(1,13):
+            for index in range(number):
                 # print(type(index))
                 # message = int.to_bytes(self,length=index,byteorder='little',signed=False)
-                bclient.publish(topics[1],b'test offline message num is %d'%(index),2,retained=False)
-                time.sleep(.5)
+                bclient.publish(topics[1],b'test offline message qos2 num is %d'%(index),2,retained=False)
+            for index in range(number):
+                # print(type(index))
+                # message = int.to_bytes(self,length=index,byteorder='little',signed=False)
+                bclient.publish(topics[1],b'test offline message qos1 num is %d'%(index),1,retained=False)
             time.sleep(2)
             connect = aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(2)
+            time.sleep(5)
             print(callback.messages)
-            aclient.disconnect
-            bclient.disconnect
+            aclient.disconnect()
+            bclient.disconnect()
         except:
             traceback.print_exc()
             succeeded = False
         print(len(callback.messages))
-        assert len(callback.messages) == 10
+        assert len(callback.messages) == 11 #目前离线消息callback.messages中应该10+1，10为离线消息数，1为最后一次发送消息一直在尝试发送。
         print("The maximum number of offline messages is 10 ""success" if succeeded else "failed" )
         self.assertEqual(succeeded,True)
 
 
 
+    """
+        1.测试订阅topic qos=0时，离线消息数量应该为零
+    """
+    def test_offline_message_qos0_zero(self):
+        print("Staring：The maximum number of offline messages is 10")
+        succeeded =  True
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=False)
+            print(wildtopics[0],topics[1])
+            aclient.subscribe([wildtopics[0]],[0])
+            time.sleep(.1)
+            aclient.disconnect()
+            time.sleep(5)   #等待断开连接
+            connect = bclient.connect(host=host,port=port,cleansession=True)
+            for index in range(1,6):
+                # print(type(index))
+                # message = int.to_bytes(self,length=index,byteorder='little',signed=False)
+                bclient.publish(topics[1],b'test offline message qos2 num is %d'%(index),2,retained=False)
+            for index in range(1,6):
+                # print(type(index))
+                # message = int.to_bytes(self,length=index,byteorder='little',signed=False)
+                bclient.publish(topics[1],b'test offline message qos1 num is %d'%(index),1,retained=False)
+            time.sleep(2)
+            connect = aclient.connect(host=host,port=port,cleansession=False)
+            time.sleep(5)
+            print(callback.messages)
+            aclient.disconnect()
+            bclient.disconnect()
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print(len(callback.messages))
+        assert len(callback.messages) == 0 #目前离线消息callback.messages中应该10+1，10为离线消息数，1为最后一次发送消息一直在尝试发送。
+        print("The maximum number of offline messages is 10 ""success" if succeeded else "failed" )
+        self.assertEqual(succeeded,True)
+
+
+
+    """
+        1.测试重复订阅
+    """
     def test_overlapping_subscriptions(self):
         # overlapping subscriptions. When there is more than one matching subscription for the same client for a topic,
         # the server may send back one message with the highest QoS of any matching subscription, or one message for
@@ -1298,6 +1389,7 @@ class Test(unittest.TestCase):
             callback2.clear()
             aclient.connect(host=host, port=port)
             #注释wildtopics[6]=="TopicA/#",wildtopics[0]="TopicA/+"
+            print(wildtopics[6], wildtopics[0])
             aclient.subscribe([wildtopics[6], wildtopics[0]], [2, 1])
             #注释topics[3]="TopicA/C"
             aclient.publish(topics[3], b"overlapping topic filters", 2)
@@ -1382,7 +1474,7 @@ class Test(unittest.TestCase):
 
 
 
-    def test_nosubscribe_end(self):
+    def test_topic_nosubscribe_end(self):
       # Subscribe failure.  A new feature of MQTT 3.1.1 is the ability to send back negative reponses to subscribe
       # requests.  One way of doing this is to subscribe to a topic which is not allowed to be subscribed to.
       #中文：此case主要验证了可以订阅/发布已nosubscribe结尾的topic
@@ -1410,8 +1502,10 @@ class Test(unittest.TestCase):
       return succeeded
     
     
-    #验证topic通配符#
-    def test_first_topic_format(self):
+    """
+        1.验证通配符#，sub：TopicA/#,pub:TopicA/B
+    """
+    def test_topic_format_first(self):
         print("topic/# topics test starting")
         succeeded = True
         message=b"test topic/#"
@@ -1437,9 +1531,13 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
-    
-    #验证topic通配符+
-    def test_second_topic_format(self):
+
+
+
+    """
+        1.验证topic通配符+,sub:"TopicA/+",pub:"TopicA/B"
+    """
+    def test_topic_format_second(self):
         print("topics:topics/+ test starting")
         succeeded = True
         message=b"test topic:topic/#"
@@ -1465,8 +1563,7 @@ class Test(unittest.TestCase):
         return succeeded
     
     #验证topic通配符
-    @unittest.skip("not run")
-    def test_third_topic_format(self):
+    def test_topic_format_third(self):
         print("topics format +/# test starting")
         succeeded = True
         message=b"test topic:+/#"
@@ -1493,7 +1590,7 @@ class Test(unittest.TestCase):
 
     #验证topic通配符格式为+/#
     #@unittest.skip("由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试，需要修改case")
-    def test_hourth_topic_format(self):
+    def test_topic_format_hourth(self):
         print("topics format +/# test starting")   #由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试
         succeeded = True
         message=b"test topic:+/#"
@@ -1521,7 +1618,7 @@ class Test(unittest.TestCase):
     
     
     #验证topic格式为+/+匹配规则
-    def test_fifth_topic_format(self):
+    def test_topic_format_fifth(self):
         print("test topic:+/+ starting")
         succeeded = True
         try:
@@ -1553,7 +1650,7 @@ class Test(unittest.TestCase):
         return succeeded
     
     #验证topic层级为9层（目前只限制最大字符，未限制层数）
-    def test_sixth_topic_format(self):
+    def test_topic_format_sixth(self):
         print("topics format topicA/B/C/D/E/F/G/H/I test starting")
         succeeded = True
         #订阅topic层级为9层
@@ -1581,7 +1678,7 @@ class Test(unittest.TestCase):
     
     
     #验证topic层级为8层
-    def test_seventh_topic_format(self):
+    def test_topic_format_seventh(self):
         print("topics format topic/a/b/c/d/e/f/g test starting")
         succeeded = True
         message = b"test"
@@ -1603,14 +1700,15 @@ class Test(unittest.TestCase):
         return succeeded
 
 
-
-    #验证topic中字符串长度大于64时，订阅和发布失败
-    def test_eighth_topic_format(self):
+    """
+        1.验证topic中字符串长度大于64时，订阅和发布失败
+    """
+    def test_topic_format_eighth(self):
         special_topic = "12345678901234567890123456789012345678901234567890123456789012345"
-        print(len(special_topic))
+        print("topic length is %d"%(len(special_topic)))
         print("topics format %s test starting"%(special_topic))   #由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试
         succeeded = False
-        #订阅topic层级为9层
+        #订阅topic超过64位，不会订阅阅成功
         try:
             connect = aclient.connect(host=host,port=port,cleansession=True)
             aclient.subscrible([special_topic],[2])
@@ -1618,7 +1716,7 @@ class Test(unittest.TestCase):
             aclient.disconnect()
         except:
             succeeded =  True
-        #发布消息topic层级为9层
+        #发布消息topic超过64位，不会发布成功
         try:
             connect = bclient.connect(host=host,port=port,cleansession=True)
             bclient.pubscrible([special_topic],[2])
@@ -1630,8 +1728,10 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
-    #验证topic通配符格式为#/#，订阅失败
-    def test_ninth_topic_format(self):
+    """
+        1.验证topic通配符格式为#/#，订阅失败
+    """
+    def test_topic_format_ninth(self):
         special_topic = "#/#"
         print(len(special_topic))
         print("topics format %s test starting"%(special_topic))
@@ -1658,7 +1758,7 @@ class Test(unittest.TestCase):
     
     
     #验证topic通配符格式为#/+，订阅失败
-    def test_tenth_topic_format(self):
+    def test_topic_format_tenth(self):
         special_topic = "#/+"
         print(len(special_topic))
         print("topics format %s test starting"%(special_topic)) 
@@ -1683,8 +1783,10 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
+
+
     #订阅层级不相同的topic
-    def tenth_eleventh_topic_format(self):
+    def test_topic_format_eleventh(self):
         print("The testing sub and pub topic levels are different  starting")
         succeeded = True
         message = b"The testing sub and pub topic levels are different"
@@ -1698,8 +1800,10 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
         
+
+
     #一个用户订阅了规则不同，但匹配结果相同的topic，此用户可以多条消息
-    def tenth_twelfth_topic_format(self):
+    def test_topic_format_twelfth(self):
         print("The matching results are the same for different topic")
         succeeded = True
         message = b"The matching results are the same for different topic"
@@ -1723,7 +1827,71 @@ class Test(unittest.TestCase):
         bclient.disconnect()
         print("The matching results are the same for different topic test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
-        return succeeded  
+        return succeeded
+
+
+    """
+        1.验证通配符#，sub：TopicA/#,pub:TopicA
+    """
+    def test_topic_format_thirteenth(self):
+        print("sub：TopicA/#,pub:TopicA, topics test starting")
+        succeeded = True
+        message=b"test topic/#"
+        callbackresult = []
+        try:
+            callbackresult = topictest(self,sub_index=6,pub_index=0, message=message)
+            assert len(callbackresult) == 2
+            self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        # try:
+        #     callbackresult = topictest(self,sub_index=6,pub_index=5, message=message)
+        #     assert len(callbackresult) == 2
+        #     # self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
+        #     # self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        # except:
+        #     traceback.print_exc()
+        #     succeeded = False
+        print(callbackresult)
+        print("topic/# topics test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+
+
+    """
+        1.测试topic格式最大允许64位字符
+    """
+    def test_topic_format_fourteenth(self):
+        print("topic length is %d"%(len(length_topic)))
+        print("topics format %s test starting"%(length_topic))
+        succeeded = True
+        #appconfig中设置topic最大为64位，订阅topic成功
+        print("test sub")
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            aclient.subscrible([length_topic], [2])
+            print(callback.subscribeds)
+            assert len(callback.subscribeds) == 1
+            aclient.disconnect()
+        except:
+            succeeded =  False
+        #appconfig中设置topic最大为64位，向topic发布消息成功
+        self.assertEqual(succeeded, True)
+        print("test pub")
+        try:
+            connect = bclient.connect(host=host,port=port,cleansession=True)
+            bclient.publish(length_topic,b"test topic length is 64",2,retained=False)
+            time.sleep(1)
+            bclient.disconnect()
+        except:
+            succeeded =  False
+        print("topics format %s  test"%(length_topic), "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+
+
     
     
     def test_topics_starting_with_dollar(self):
@@ -1750,7 +1918,7 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
 
-    def test_unsubscribe(self):
+    def test_topic_unsubscribe(self):
         #中文：验证未订阅topic，不会收到此topic的消息
         print("Unsubscribe test starting")
         succeeded = True
@@ -1866,15 +2034,15 @@ if __name__ == "__main__":
     # for i in range(iterations):
     #     unittest.main()
     #创建测试集
-    # suite = unittest.TestSuite()
-    # suite.addTest(Test("test_sixth_topic_format"))
+    suite = unittest.TestSuite()
+    suite.addTest(Test("testBasic"))
     # suite.addTest(Test("test_seventh_topic_format"))
     # suite.addTest(Test("test_will_message_qos_one"))
     # suite.addTest(Test("test_zero_length_clientid"))
     # suite.addTest(Test("test_online_retained_messages"))
     # suite.addTest(Test("test_nosub_reatin_message"))
-    # runner = unittest.TextTestRunner(verbosity=2)
-    # runner.run(suite)
+    runner = unittest.TextTestRunner(verbosity=2)
+    runner.run(suite)
 
     #生成测试报告
 #     suite = unittest.TestSuite()  #实例化
