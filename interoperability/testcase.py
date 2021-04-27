@@ -236,14 +236,14 @@ class Test(unittest.TestCase):
     authentication = False
 
     # 1.测试地址沙箱环境
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
 
 
     #本地
@@ -328,6 +328,61 @@ class Test(unittest.TestCase):
         print("Basic test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+    """
+        1.测试连续订阅不同topic
+    """
+    def test_continuous_subscription(self):
+        print("test subnum max starting")
+        print(print(topics),len(topics),len(wildtopics))
+        connack = aclient.connect(host=host,port=port)
+        connack = bclient.connect(host=host,port=port)
+        succeeded = True
+        try:
+            for i in range(len(topics)):
+                print(i)
+                aclient.subscribe([topics[i]], [2])
+                bclient.subscribe([topics[i]], [2])
+                time.sleep(.2)
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
+
+    
+    """
+        1.测试连续向不同topic发送消息
+    """
+    def test_sending_messages_continuously(self):
+        print("test subnum max starting")
+        print(print(topics),len(topics),len(wildtopics))
+        connack = aclient.connect(host=host,port=port)
+        connack = bclient.connect(host=host,port=port)
+        succeeded = True
+        try:
+            for i in range(len(topics)):
+                print(i)
+                aclient.subscribe([topics[i]], [2])
+                bclient.subscribe([topics[i]], [2])
+                time.sleep(.2)
+        except:
+            succeeded = False
+        # f = generate_random_str(10)
+        succeeded = True
+        try:
+            f = generate_random_str(10)
+            for num in range(len(f)):
+                for i in range(len(topics)):
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),0,retained=False)
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),1,retained=False)
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),2,retained=False)
+                    time.sleep(1)
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
+
+
+
+
 
     """
         1.测试发送内容字符串长度
