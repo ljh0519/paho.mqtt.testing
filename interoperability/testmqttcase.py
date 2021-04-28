@@ -236,25 +236,25 @@ class Test(unittest.TestCase):
     authentication = False
 
     # 1.测试地址沙箱环境
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
+    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "mqtttest2@1wyp94"
+    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
 
 
     #本地
-    host = "172.17.1.160"
-    port = 1883
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    clientid1 = "ckjaakjncalnla@1RK24W"
-    clientid2 = "ckjaakjncalnla1@1RK24W"
-    appid = {"right_appid":"1RK24W","error_appid":"","noappid":"123"} #构建appid
+    # host = "172.17.1.160"
+    # port = 1883
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
+    # clientid1 = "ckjaakjncalnla@1RK24W"
+    # clientid2 = "ckjaakjncalnla1@1RK24W"
+    # appid = {"right_appid":"1RK24W","error_appid":"","noappid":"123"} #构建appid
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -298,8 +298,8 @@ class Test(unittest.TestCase):
         callback.clear()
         callback2.clear()
     
-    def tearDown(self):
-        cleanup()
+    # def tearDown(self):
+    #     cleanup()
 
     """
         1.基础测试
@@ -329,11 +329,35 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
 
+
+
+
     """
         1.测试连续订阅不同topic
     """
-    def test_continuous_subscription(self):
+    def test_subscription_continuous(self):
         print("test subnum max starting")
+        print(print(topics),len(topics),len(wildtopics))
+        connack = aclient.connect(host=host,port=port)
+        connack = bclient.connect(host=host,port=port)
+        succeeded = True
+        try:
+            for i in range(len(topics)):
+                print(i)
+                aclient.subscribe([topics[i]], [2])
+                bclient.subscribe([topics[i]], [2])
+                time.sleep(0.1)
+        except:
+            succeeded = False
+        time.sleep(10)
+        self.assertEqual(succeeded,True)
+
+
+    """
+        1.测试连续订阅取消订阅（可以验证console中最大订阅topic）
+    """
+    def test_subcription_unsubcription_continuous(self):
+        print("test continuous subscription unsubscription starting")
         print(print(topics),len(topics),len(wildtopics))
         connack = aclient.connect(host=host,port=port)
         connack = bclient.connect(host=host,port=port)
@@ -367,14 +391,20 @@ class Test(unittest.TestCase):
         except:
             succeeded = False
         # f = generate_random_str(10)
+        print("send messages")
         succeeded = True
+        number = 10
         try:
-            f = generate_random_str(10)
-            for num in range(len(f)):
+            # f = generate_random_str(10)
+            for num in range(number):
                 for i in range(len(topics)):
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),0,retained=False)
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),1,retained=False)
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d"%(topic[i],num,i),2,retained=False)
+                    print(num,i)
+                    print("first")
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos0"%(topics[i],num,i), 0, retained=False)
+                    print("sencode")
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos1"%(topics[i],num,i), 1, retained=False)
+                    print("third")
+                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos2"%(topics[i],num,i), 2, retained=False)
                     time.sleep(1)
         except:
             succeeded = False
@@ -437,6 +467,8 @@ class Test(unittest.TestCase):
             succeeded = True
         print("test_login_username_and_paw_donot_math starting %s""succeeded" if succeeded else "failed")
         assert succeeded == True
+
+
 
 
     """
@@ -1548,6 +1580,8 @@ class Test(unittest.TestCase):
         return succeeded
 
 
+
+
     def test_keepalive(self):
       # keep_alive processing.  We should be kicked off by the server if we don't send or receive any data, and don't send
       # any pings either.
@@ -1606,7 +1640,7 @@ class Test(unittest.TestCase):
 
 
 
-    def test_topic_nosubscribe_end(self):
+    def test_topic_format_nosubscribe_end(self):
       # Subscribe failure.  A new feature of MQTT 3.1.1 is the ability to send back negative reponses to subscribe
       # requests.  One way of doing this is to subscribe to a topic which is not allowed to be subscribed to.
       #中文：此case主要验证了可以订阅/发布已nosubscribe结尾的topic
@@ -1632,6 +1666,7 @@ class Test(unittest.TestCase):
       print("Nosubscribe end test", "succeeded" if succeeded else "failed")
       self.assertEqual(succeeded, True)
       return succeeded
+
     
     
     """
@@ -2099,8 +2134,11 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
 
+
+    """
+        1.取消订阅topic，不会收到此topic发送消息
+    """
     def test_topic_unsubscribe(self):
-        #中文：验证未订阅topic，不会收到此topic的消息
         print("Unsubscribe test starting")
         succeeded = True
         try:
