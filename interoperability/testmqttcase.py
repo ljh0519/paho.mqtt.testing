@@ -298,8 +298,8 @@ class Test(unittest.TestCase):
         callback.clear()
         callback2.clear()
     
-    # def tearDown(self):
-    #     cleanup()
+    def tearDown(self):
+        cleanup()
 
     """
         1.基础测试
@@ -349,7 +349,7 @@ class Test(unittest.TestCase):
                 time.sleep(0.1)
         except:
             succeeded = False
-        time.sleep(10)
+        time.sleep(5)
         self.assertEqual(succeeded,True)
 
 
@@ -424,10 +424,12 @@ class Test(unittest.TestCase):
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(1)
-        print(message)
+        # print(message)
         try:
+            print("登陆")
             connack = aclient.connect(host=host, port=port)
             # #assert connack.flags == 0x00 # Session present
+            print("sub")
             aclient.subscribe([topics[0]], [2])
             # aclient.publish(topics[0], message, 0)
             aclient.publish(topics[0], message, 1)
@@ -436,6 +438,7 @@ class Test(unittest.TestCase):
             time.sleep(2)
             aclient.disconnect()
             # print(callback.messages)
+            print("断言")
             print(len(callback.messages))
             self.assertEqual(len(callback.messages), 2)
             self.assertEqual(len(callback.messages[0][1]),number)
@@ -1380,13 +1383,17 @@ class Test(unittest.TestCase):
     def test_send_message_length_50(self):
         print("Staring：The maximum length of offline messages is 50")
         succeeded =  True
-        message= b"12345678901234567890123456789012345678901234567890"
+        number = 50
+        f = generate_random_str(number) #随机构建一个指定字符串
+        message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
+        time.sleep(2)
+        # message = b"12345678901234567890123456789012345678901234567890"
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=False)
+            connect = aclient.connect(host=host,port=port)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(.1)
-            connect = bclient.connect(host=host,port=port,cleansession=True)
+            connect = bclient.connect(host=host,port=port)
             bclient.publish(topics[1],message,2,retained=False)
             time.sleep(2)
             print(callback.messages)
@@ -1404,10 +1411,13 @@ class Test(unittest.TestCase):
     """
         1.发送消息字节书超过50个，此条消息被丢弃(appconfig默认配置是65535)
     """
-    def test_send_message_length_52(self):
+    def test_send_message_length_65536(self):
         print("Staring：The maximum length of offline messages is 50")   
-        succeeded =  True
-        message= b"123456789012345678901234567890123456789012345678901234567890"
+        succeeded =  True     
+        number = 65536
+        f = generate_random_str(number) #随机构建一个指定字符串
+        message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
+        time.sleep(1)
         try:
             connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
@@ -2097,6 +2107,7 @@ class Test(unittest.TestCase):
         print("test pub")
         try:
             connect = bclient.connect(host=host,port=port,cleansession=True)
+            print("user B login succeed")
             bclient.publish(length_topic,b"test topic length is 64",2,retained=False)
             time.sleep(1)
             bclient.disconnect()
