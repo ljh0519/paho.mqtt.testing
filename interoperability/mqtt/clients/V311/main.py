@@ -63,12 +63,15 @@ class Callback:
 
 class Client:
 
+
   def __init__(self, clientid):
     self.clientid = clientid
     self.msgid = 1
     self.callback = None
     self.__receiver = None
     self.cleansession = True
+    self.__username = None
+    self.__password = None  
 
 
   def __nextMsgid(self):
@@ -86,13 +89,17 @@ class Client:
         self.msgid = getWrappedMsgid()
     return self.msgid
 
+  def setUserName(self, username, password):
+    self.__username = username
+    self.__password = password
 
   def registerCallback(self, callback):
     self.callback = callback
 
+  def connect(self, host="localhost", port=1883, cleansession=True, keepalive=60, newsocket=True, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False):
+    self.connect2(host, port,cleansession, keepalive, newsocket, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,self.__username,self.__password)
 
-  def connect(self, host="localhost", port=1883, cleansession=True, keepalive=60, newsocket=True, protocolName=None,
-              willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False, username=None, password=None):
+  def connect2(self, host, port, cleansession, keepalive, newsocket, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain, username, password):
     if newsocket:
       try:
         self.sock.close()
@@ -102,7 +109,7 @@ class Client:
       self.sock.settimeout(.5)
       self.sock.connect((host, port))
 
-    connect = MQTTV3.Connects()
+    connect = MQTTV3.Connects() #mqtt login
     connect.ClientIdentifier = self.clientid
     connect.CleanSession = cleansession
     connect.KeepAliveTimer = keepalive
@@ -133,6 +140,7 @@ class Client:
 
     self.cleansession = cleansession
     assert response.returnCode == 0, "connect was %s" % str(response)
+
     if self.cleansession or self.__receiver == None:
       self.__receiver = internal.Receivers(self.sock)
     else:
@@ -141,6 +149,24 @@ class Client:
       id = _thread.start_new_thread(self.__receiver, (self.callback,))
     return response
 
+
+  def onlyconnect(self, host="localhost", port=1883,newsocket=True):
+    if newsocket:
+      try:
+        self.sock.close()
+      except:
+        pass
+      self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      self.sock.settimeout(.5)
+      self.sock.connect((host, port))
+
+    if self.__receiver == None: #判断是否有receiver
+      self.__receiver = internal.Receivers(self.sock)
+    else:
+      self.__receiver.socket = self.sock
+    if self.callback:
+      id = _thread.start_new_thread(self.__receiver, (self.callback,))
+    return response
 
   def subscribe(self, topics, qoss):
     subscribe = MQTTV3.Subscribes()

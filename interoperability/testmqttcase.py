@@ -417,10 +417,10 @@ class Test(unittest.TestCase):
     """
         1.测试发送内容字符串长度
     """
-    def test_send_bytes_length(self):
+    def test_send_message_length(self):
         print("Basic test starting")
         succeeded = True
-        number = 600
+        number = 65535
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(1)
@@ -1377,7 +1377,7 @@ class Test(unittest.TestCase):
     """
         1.测试消息最大长度为50字节（官网规定最大字节是65535，为了测试，目前嘉豪给设置的最大字节是50）
     """
-    def test_message_length_50(self):
+    def test_send_message_length_50(self):
         print("Staring：The maximum length of offline messages is 50")
         succeeded =  True
         message= b"12345678901234567890123456789012345678901234567890"
@@ -1404,7 +1404,7 @@ class Test(unittest.TestCase):
     """
         1.发送消息字节书超过50个，此条消息被丢弃(appconfig默认配置是65535)
     """
-    def test_message_length_52(self):
+    def test_send_message_length_52(self):
         print("Staring：The maximum length of offline messages is 50")   
         succeeded =  True
         message= b"123456789012345678901234567890123456789012345678901234567890"
