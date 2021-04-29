@@ -21,7 +21,6 @@ import HTMLTestRunner
 import random
 
 import mqtt.clients.V311 as mqtt_client, time, logging, socket, sys, getopt, traceback
-from http import client
 
 class Callbacks(mqtt_client.Callback):
 
