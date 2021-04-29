@@ -126,13 +126,15 @@ def cleanup():
 
   # for clientid in clientids:
   curclient = mqtt_client.Client(clientid1.encode("utf-8"))
-  curclient.connect(host=host, port=port, cleanstart=True,username=username1,password=password1)
+  curclient.setUserName(username1, password1)
+  curclient.connect(host=host, port=port, cleanstart=True)
   time.sleep(.1)
   curclient.disconnect()
   time.sleep(.1)
 
   curclient = mqtt_client.Client(clientid2.encode("utf-8"))
-  curclient.connect(host=host, port=port, cleanstart=True,username=username2,password=password2)
+  curclient.setUserName(username2, password2)
+  curclient.connect(host=host, port=port, cleanstart=True)
   time.sleep(.1)
   curclient.disconnect()
   time.sleep(.1)
@@ -943,7 +945,7 @@ class Test(unittest.TestCase):
         aclient.disconnect()
 
       # 1. client max packet size
-      maximumPacketSize = 64 # max packet size we want to receive
+      maximumPacketSize = 6536 # max packet size we want to receive
       connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
       connect_properties.MaximumPacketSize = maximumPacketSize
       connack = aclient.connect(host=host, port=port, cleanstart=True,
