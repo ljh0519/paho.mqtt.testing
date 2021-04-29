@@ -251,27 +251,27 @@ class Test(unittest.TestCase):
     authentication = False
 
     # 1.测试地址沙箱环境
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
+    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "mqtttest2@1wyp94"
+    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
 
 
     #本地
-    host = "172.17.1.160"
-    port = 1883
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    # clientid1 = "ckjaakjncalnla@1RK24W"
-    # clientid2 = "ckjaakjncalnla1@1RK24W"
-    clientid1 = "mqtttest1@1wyp94"
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    # host = "172.17.1.160"
+    # port = 1883
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
+    # # clientid1 = "ckjaakjncalnla@1RK24W"
+    # # clientid2 = "ckjaakjncalnla1@1RK24W"
+    # clientid1 = "mqtttest1@1wyp94"
+    # clientid2 = "mqtttest2@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -326,62 +326,63 @@ class Test(unittest.TestCase):
 
 
     """
-      1.sub-pub
+      1.测试登陆成功后，只pub
     """
-    def test_sub_pub(self):
-      print(topics,len(topics),len(wildtopics))
-      connack = aclient.connect(host=host,port=port,cleansession=True)
-      connack = bclient.connect(host=host,port=port,cleansession=True)
-      succeeded = True
-      print("Basic test starting")
-      succeeded = True
-      number = len(topics)
-      try:
-        for i in range(number):
-          aclient.subscribe([topics[i]], [2])
-        #   bclient.subscribe([topics[i]], [2])
-          time.sleep(.1)
-        time.sleep(10)
-        for i in range(number):
-        #   aclient.publish(topics[i],b"2"%(i),0)
-          aclient.publish(topics[i],b"2"%(i),1)
-          aclient.publish(topics[i],b"2"%(i),2)
-          time.sleep(.1)
-        time.sleep(10)
-      except:
-        succeeded = False
-      print("Basic test", "succeeded" if succeeded else "failed")
-      self.assertEqual(succeeded, True)
-      return succeeded
-
-    """
-      1.仅pub
-    """
-    def test_sub(self):
+    def test_only_pub(self):
         print(topics,len(topics),len(wildtopics))
         connack = aclient.connect(host=host,port=port,cleansession=True)
+        connack = bclient.connect(host=host,port=port,cleansession=True)
+        succeeded = True
+        print("Basic test starting")
+        succeeded = True
+        number = 8
+        try:
+            for i in range(number):
+                print("i is %d"%i)
+                aclient.publish(topics[i],b"22",0)
+                aclient.publish(topics[i],b"bc",1)
+                aclient.publish(topics[i],b"ab",2)
+                time.sleep(.1)
+            time.sleep(10)
+        except:
+            succeeded = False
+        self.assertEqual(succeeded, True)
+        return succeeded
+
+    """
+      1.测试sub、pub、上行消息、下行消息、消息总数
+    """
+    def test_sub_pub_message(self):
+        print(topics,len(topics),len(wildtopics))
+        connack = aclient.connect(host=host,port=port,cleansession=True)
+        connack = bclient.connect(host=host,port=port,cleansession=True)
         #   connack = bclient.connect(host=host,port=port,cleansession=False)
         print(" login end")
         succeeded = True
         print("Basic test starting")
+        number = 10
         try:
-          for i in range(8):
-                    print("send message %d"%(i))
+            for i in range(len(topics)):
+                    print("sub %d"%(i))
                     aclient.subscribe([topics[i]], [2])
-          for num in range(2):
-              print("num = %d"%num)
-              for i in range(8):
-                  print("send message %d"%(i))
-                  # aclient.publish(topics[i], b"123", 0)
-                  aclient.publish(topics[i], b"a %d"%(i), 1)
-                  aclient.publish(topics[i], b"b %d"%(i), 2)
-                  time.sleep(.1)
-          print("send end")
-          time.sleep(10)
+                    bclient.subscribe([topics[i]], [2])
+                    time.sleep(1)
+            for num in range(number):
+                print("num = %d"%num)
+                for i in range(len(topics)):
+                    print("send message %d"%(i))
+                    aclient.publish(topics[i], b"123", 0)
+                    aclient.publish(topics[i], b"aa", 1)
+                    aclient.publish(topics[i], b"b", 2)
+                    time.sleep(1)   #由于发送消息太快，导致服务端未消费，部分消息会丢失,所以发送消息后等待时间设置1s
+            print("send end")
+            time.sleep(10)
         except:
             succeeded = False
-
-        print("Basic test", "succeeded" if succeeded else "failed")
+        print(len(callback.messages))
+        print(len(callback.messages))
+        assert len(callback.messages) == number*3*len(topics)
+        assert len(callback2.messages) == number*3*len(topics)
         self.assertEqual(succeeded, True)
         return succeeded
 

@@ -400,14 +400,18 @@ class Test(unittest.TestCase):
                 for i in range(len(topics)):
                     print(num,i)
                     print("first")
-                    aclient.publish(topics[i],b"publish topic:%s %d-%d qos0"%(topics[i],num,i), 0, retained=False)
+                    aclient.publish(topics[i],b"publish topic: qos0",0, retained=False)
                     print("sencode")
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos1"%(topics[i],num,i), 1, retained=False)
+                    aclient.publish(topics[i],b"publish topic qos1", 1, retained=False)
                     print("third")
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos2"%(topics[i],num,i), 2, retained=False)
+                    aclient.publish(topics[i],b"publish topic qos2", 2, retained=False)
                     time.sleep(1)
         except:
             succeeded = False
+        print(len(callback.messages))
+        print(len(callback.messages))
+        assert len(callback.messages) == number*3*len(topics)
+        assert len(callback2.messages) == number*3*len(topics)
         self.assertEqual(succeeded,True)
 
 

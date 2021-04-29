@@ -102,9 +102,15 @@ class Client:
     self.callback = callback
 
 
-  def connect(self, host="localhost", port=1883, cleanstart=True, keepalive=0, newsocket=True, protocolName=None,
-              willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False, username=None, password=None,
-              properties=None, willProperties=None):
+  def setUserName(self, username, password):
+    self.__username = username
+    self.__password = password
+
+  def connect(self, host="localhost", port=1883, cleanstart=True, keepalive=60, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False,properties=None, willProperties=None,username=None, password=None):
+    print(self.__username,self.__password)
+    self.connect2(host, port,cleanstart, keepalive, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties,self.__username,self.__password)
+
+  def connect2(self, host, port, cleanstart, keepalive, protocolName,willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties, username, password):
     if newsocket:
       try:
         self.sock.close()
