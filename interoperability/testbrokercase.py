@@ -400,7 +400,7 @@ class Test(unittest.TestCase):
                 for i in range(len(topics)):
                     print(num,i)
                     print("first")
-                    aclient.publish(topics[i],b"publish topic: %s %d-%d qos0"%(topics[i],num,i), 0, retained=False)
+                    aclient.publish(topics[i],b"publish topic:%s %d-%d qos0"%(topics[i],num,i), 0, retained=False)
                     print("sencode")
                     aclient.publish(topics[i],b"publish topic: %s %d-%d qos1"%(topics[i],num,i), 1, retained=False)
                     print("third")

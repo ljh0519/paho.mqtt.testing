@@ -183,6 +183,9 @@ class Client:
     unsubscribe = MQTTV3.Unsubscribes()
     unsubscribe.messageIdentifier = self.__nextMsgid()
     unsubscribe.data = topics
+    a = unsubscribe.pack()
+    print("!!!!!!!!!!!")
+    print(a)
     sendtosocket(self.sock, unsubscribe.pack())
     return unsubscribe.messageIdentifier
 

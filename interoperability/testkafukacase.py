@@ -257,7 +257,7 @@ class Test(unittest.TestCase):
     # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
     # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
     # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest1@1wyp94"
+    # clientid2 = "mqtttest2@1wyp94"
     # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
 
 
@@ -361,20 +361,23 @@ class Test(unittest.TestCase):
         print(topics,len(topics),len(wildtopics))
         connack = aclient.connect(host=host,port=port,cleansession=True)
         #   connack = bclient.connect(host=host,port=port,cleansession=False)
-        print("end")
+        print(" login end")
         succeeded = True
-        number = 8
         print("Basic test starting")
         try:
-            for num in range(10):
-                for i in range(8):
+          for i in range(8):
                     print("send message %d"%(i))
-                    aclient.publish(topics[i], b"123", 0)
-                    aclient.publish(topics[i], b"123", 1)
-                    aclient.publish(topics[i], b"123", 2)
-                    time.sleep(.1)
-            print("send end")
-            time.sleep(10)
+                    aclient.subscribe([topics[i]], [2])
+          for num in range(2):
+              print("num = %d"%num)
+              for i in range(8):
+                  print("send message %d"%(i))
+                  # aclient.publish(topics[i], b"123", 0)
+                  aclient.publish(topics[i], b"a %d"%(i), 1)
+                  aclient.publish(topics[i], b"b %d"%(i), 2)
+                  time.sleep(.1)
+          print("send end")
+          time.sleep(10)
         except:
             succeeded = False
 
