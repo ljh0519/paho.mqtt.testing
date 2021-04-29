@@ -17,7 +17,6 @@
 """
 
 import unittest
-import HTMLTestRunner
 import random
 
 import mqtt.clients.V311 as mqtt_client, time, logging, socket, sys, getopt, traceback
@@ -2265,18 +2264,18 @@ if __name__ == "__main__":
 
     print("hostname", host, "port", port)
  
-    # for i in range(iterations):
-    #     unittest.main()
+    for i in range(iterations):
+        unittest.main()
     #创建测试集
-    suite = unittest.TestSuite()
-    suite.addTest(Test("test_cleansession_false"))
+    # suite = unittest.TestSuite()
+    # suite.addTest(Test("test_cleansession_false"))
     # suite.addTest(Test("test_seventh_topic_format"))
     # suite.addTest(Test("test_will_message_qos_one"))
     # suite.addTest(Test("test_zero_length_clientid"))
     # suite.addTest(Test("test_online_retained_messages"))
     # suite.addTest(Test("test_nosub_reatin_message"))
-    runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)
+    # runner = unittest.TextTestRunner(verbosity=2)
+    # runner.run(suite)
 
     #生成测试报告
 #     suite = unittest.TestSuite()  #实例化

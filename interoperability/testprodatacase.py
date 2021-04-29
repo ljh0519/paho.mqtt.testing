@@ -17,7 +17,6 @@
 """
 
 import unittest
-import HTMLTestRunner
 import random
 
 import mqtt.clients.V311 as mqtt_client, time, logging, socket, sys, getopt, traceback

@@ -108,7 +108,7 @@ class Client:
 
   def connect(self, host="localhost", port=1883, cleanstart=True, keepalive=60, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False,properties=None, willProperties=None,username=None, password=None):
     print(self.__username,self.__password)
-    self.connect2(host, port,cleanstart, keepalive, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties,self.__username,self.__password)
+    return self.connect2(host, port,cleanstart, keepalive, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties,self.__username,self.__password)
 
   def connect2(self, host, port, cleanstart, keepalive, protocolName,willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties, username, password):
     if newsocket:
