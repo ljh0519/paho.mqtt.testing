@@ -106,10 +106,19 @@ class Client:
     self.__username = username
     self.__password = password
 
+<<<<<<< HEAD
   def connect(self, host="localhost", port=1883, newsocket=True,cleanstart=True, keepalive=60, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False,properties=None, willProperties=None,username=None, password=None):
     print(self.__username,self.__password)
     return self.connect2(host, port,newsocket,cleanstart, keepalive, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties,self.__username,self.__password)
 
+=======
+  def connect(self, host="localhost", port=1883, newsocket=True,cleanstart=True, keepalive=60, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False,properties=None, willProperties=None):
+    print(self.__username,self.__password)
+    return self.connect2(host, port,newsocket,cleanstart, keepalive, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties,self.__username,self.__password)
+
+
+
+>>>>>>> 616fdce99861ee823cf76f9e4d68c908ab599492
   def connect2(self, host, port, newsocket,cleanstart, keepalive, protocolName,willFlag, willTopic, willMessage, willQoS, willRetain,properties, willProperties, username, password):
     if newsocket:
       try:

@@ -97,7 +97,7 @@ class Client:
     self.callback = callback
 
   def connect(self, host="localhost", port=1883, cleansession=True, keepalive=60, newsocket=True, protocolName=None,willFlag=False, willTopic=None, willMessage=None, willQoS=2, willRetain=False):
-    self.connect2(host, port,cleansession, keepalive, newsocket, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,self.__username,self.__password)
+    return self.connect2(host, port,cleansession, keepalive, newsocket, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain,self.__username,self.__password)
 
   def connect2(self, host, port, cleansession, keepalive, newsocket, protocolName, willFlag, willTopic, willMessage, willQoS, willRetain, username, password):
     if newsocket:
