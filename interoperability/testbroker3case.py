@@ -268,7 +268,7 @@ class Test(unittest.TestCase):
         "no_appid":deviceid["right_deviceid"] + "@",\
         "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
         "appid_empty":deviceid["right_deviceid"] + "@" + appid["noappid"],\
-        "overlength_clientid":"123456789012345678901234567890123456789012345678901234567@1RK24W123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]}
+        "overlength_clientid":"1234567890123456789012345678901234567890123456789012345678@" + appid["right_appid"]}
     
     @classmethod
     def setUpClass(cls):
@@ -1261,6 +1261,7 @@ class Test(unittest.TestCase):
     """
     def test_clientid_length_65(self):
         print("Starting:ClientId has a maximum length of 65")
+        print("clientid length is %d"%len(error_cliendid["overlength_clientid"]))
         succeeded = False
         try:
             client0 = mqtt_client.Client(error_cliendid["overlength_clientid"].encode("utf-8"))
