@@ -176,18 +176,20 @@ def test_will_message_qos_zero(self):
 def clientidtest(self,clientid,username,apppassword):
     print("clientid test starting")
     succeeded = True
+    callback4 = Callbacks()
     try:
         client0 = mqtt_client.Client(clientid.encode("utf-8"))
+        client0.registerCallback(callback4)
         client0.setUserName(username, apppassword)
         # try:
         client0.connect(host=host, port=port, cleansession=True) # should work
         print(wildtopics[0],topics[1])
         client0.subscribe([wildtopics[0]],[2])
         time.sleep(.1)
-        client0.publish(topics[1],"test cliendid",2,retained=False)
+        client0.publish(topics[1],b"test cliendid",2,retained=False)
         time.sleep(1)
-        print(callback3.messages)
-        assert len(callback3.messages) ==2
+        print(callback4.messages)
+        assert len(callback4.messages) ==1
         # except:
         #     fails = False
         # self.assertEqual(fails, True)
@@ -241,7 +243,7 @@ class Test(unittest.TestCase):
     password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
     clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
     clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
     #本地
@@ -252,7 +254,7 @@ class Test(unittest.TestCase):
     # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
     # clientid1 = "ckjaakjncalnla@1RK24W"
     # clientid2 = "ckjaakjncalnla1@1RK24W"
-    # appid = {"right_appid":"1RK24W","error_appid":"","noappid":"123"} #构建appid
+    # appid = {"right_appid":"1RK24W","error_appid":"123","noappid":""} #构建appid
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -260,13 +262,12 @@ class Test(unittest.TestCase):
     nosubscribe_topics = ("test/nosubscribe",)
     length_topic = "1234567890123456789012345678901234567890123456789012345678901234"
     length64_fold = "a/b/c/d/e/f/g/f/h/i/gk/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/1/2/3/4/5/6"
-
     length_clientid = "123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]
     deviceid = {"right_deviceid":"testdeviceid1","error_deviceid":""}    #构建deviceid
     error_cliendid = {"error_format_one":deviceid["right_deviceid"] + "#" + appid["right_appid"],\
-        "no_appid":deviceid["right_deviceid"],\
+        "no_appid":deviceid["right_deviceid"] + "@",\
         "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
-        "no_key":deviceid["right_deviceid"] + "@" + appid["noappid"],\
+        "appid_empty":deviceid["right_deviceid"] + "@" + appid["noappid"],\
         "overlength_clientid":"123456789012345678901234567890123456789012345678901234567@1RK24W123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]}
     
     @classmethod
@@ -1189,13 +1190,13 @@ class Test(unittest.TestCase):
         clientid = error_cliendid["error_format_one"]
         print(clientid,username1,password1)
         succeeded = clientidtest(self,clientid,username1,password1)
-        self.assertEqual(succeeded, False)
+        self.assertEqual(succeeded, True)
         print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
 
 
 
     """
-        1.使用错误的cliendid格式，例如：deviceidid
+        1.使用错误的cliendid格式正确的deviceid和appid的，未有连接符号@，例如：deviceid1wyp94
     """
     @unittest.skipIf(authentication == True,"not run")
     def test_clientid_error_format_two(self):
@@ -1211,12 +1212,12 @@ class Test(unittest.TestCase):
 
         
     """
-        1.clientid中使用不存在的appkid,例如：devicesidappid
+        1.clientid中使用appid为空,例如：devicesid@
     """
     @unittest.skipIf(authentication == True,"Not Run")
     def test_cliendid_contains_no_appid(self):
         print("cliendid contains no appid test starting")
-        clientid = error_cliendid["no_appid"]
+        clientid = error_cliendid["appid_empty"]
         username = username1
         password = password1
         print(clientid,username,password)
@@ -1263,6 +1264,7 @@ class Test(unittest.TestCase):
         succeeded = False
         try:
             client0 = mqtt_client.Client(error_cliendid["overlength_clientid"].encode("utf-8"))
+            client0.setUserName(username1,password1)
             connect = client0.connect(host=host,port=port,cleansession=True)
         except:
             traceback.print_exc()
