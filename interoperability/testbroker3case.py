@@ -178,9 +178,9 @@ def clientidtest(self,clientid,username,apppassword):
     succeeded = True
     try:
         client0 = mqtt_client.Client(clientid.encode("utf-8"))
-        fails = True
+        client0.setUserName(username, apppassword)
         # try:
-        client0.connect(host=host, port=port, cleansession=True,username=username,password=apppassword) # should work
+        client0.connect(host=host, port=port, cleansession=True) # should work
         print(wildtopics[0],topics[1])
         client0.subscribe([wildtopics[0]],[2])
         time.sleep(.1)

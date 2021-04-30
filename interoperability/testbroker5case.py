@@ -1257,17 +1257,32 @@ class Test(unittest.TestCase):
 
 def setData():
   global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,username1,username2,username3
-  topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA")
-  wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#")
+  host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+  port = 2883 #发送端口
+  # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA")
+  # wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#")
   nosubscribe_topics = ("test/nosubscribe",)
   clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
   clientid2 = "mqtttest2@1wyp94"
   clientid3 = "mqtttest3@1wyp94"
   username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-  host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-  port = 2883 #发送端口
   password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
   password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+  password2 = b"$t$YWMtMubpQqlgEeuaW6tYyyxzoPLBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5ILhN-ABPGgDWCb_idFTCLnpUCbJR5HBtZKS3skxat7x9mZUvY6hX_w"
+  topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
+  wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
+  nosubscribe_topics = ("test/nosubscribe",)
+  length_topic = "1234567890123456789012345678901234567890123456789012345678901234"
+  length64_fold = "a/b/c/d/e/f/g/f/h/i/gk/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/1/2/3/4/5/6"
+  length_clientid = "123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]
+  deviceid = {"right_deviceid":"testdeviceid1","error_deviceid":""}    #构建deviceid
+  error_cliendid = {"error_format_one":deviceid["right_deviceid"] + "#" + appid["right_appid"],\
+      "no_appid":deviceid["right_deviceid"],\
+      "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
+      "no_key":deviceid["right_deviceid"] + "@" + appid["noappid"],\
+      "overlength_clientid":"123456789012345678901234567890123456789012345678901234567@1RK24W123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]}
+
+
 
 
 if __name__ == "__main__":
