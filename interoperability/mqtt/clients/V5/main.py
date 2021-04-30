@@ -155,6 +155,8 @@ class Client:
     assert response.fh.PacketType == MQTTV5.PacketTypes.CONNACK
 
     self.cleanstart = cleanstart
+    print("response =")
+    print(response)
     assert response.reasonCode.getName() == "Success", "connect was %s" % str(response)
     if self.cleanstart or self.__receiver == None:
       self.__receiver = internal.Receivers(self.sock)

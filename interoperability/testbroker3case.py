@@ -2126,7 +2126,9 @@ class Test(unittest.TestCase):
 
 
     
-    
+    """
+        1.测试topic格式已$开头，例：$TopicA
+    """
     def test_topics_starting_with_dollar(self):
         # $ topics. The specification says that a topic filter which starts with a wildcard does not match topic names that
         # begin with a $.  Publishing to a topic which starts with a $ may not be allowed on some servers (which is entirely valid),

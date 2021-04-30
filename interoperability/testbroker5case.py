@@ -203,6 +203,7 @@ class Test(unittest.TestCase):
       aclient.publish(topics[0], b"qos 2", 2)
       time.sleep(2)
       aclient.disconnect()
+      print("判断收到消息条数")
       self.assertEqual(len(callback.messages), 3)
 
       with self.assertRaises(Exception):
@@ -278,7 +279,7 @@ class Test(unittest.TestCase):
         client0.setUserName(username1, password1)
         fails = False
         try:
-          client0.connect(host=host, port=port, cleanstart=False) # should not be rejected
+          client0.connect(host=host, port=port, cleanstart=False) # should be rejected
         except:
           fails = True
         assert fails == True
@@ -417,7 +418,46 @@ class Test(unittest.TestCase):
       self.assertEqual(succeeded, True)
       return succeeded
 
-    def test_dollar_topics(self):
+
+    """
+        1.取消订阅topic，不会收到此topic发送消息
+    """
+    def test_topic_unsubscribe(self):
+        print("Unsubscribe test starting")
+        succeeded = True
+        try:
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleanstart=True)
+            bclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2)])
+            bclient.subscribe([topics[1]], [MQTTV5.SubscribeOptions(2)])
+            bclient.subscribe([topics[2]], [MQTTV5.SubscribeOptions(2)])
+            time.sleep(1) # wait for all retained messages, hopefully
+            # Unsubscribed from one topic
+            bclient.unsubscribe([topics[0]])    #取消订阅topics[0]
+    
+            aclient.connect(host=host, port=port, cleanstart=True)
+            aclient.publish(topics[0], b"", 1, retained=False)
+            aclient.publish(topics[1], b"", 1, retained=False)
+            aclient.publish(topics[2], b"", 1, retained=False)
+            time.sleep(2)
+    
+            bclient.disconnect()
+            aclient.disconnect()
+            print(callback2.messages)
+            self.assertEqual(len(callback2.messages), 2, callback2.messages)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        self.assertEqual(succeeded, True)
+        print("unsubscribe tests", "succeeded" if succeeded else "failed")
+        return 
+
+
+
+    """
+        1.测试topic格式已$开头，例：$TopicA
+    """
+    def test_topics_starting_with_dollar(self):
       # $ topics. The specification says that a topic filter which starts with a wildcard does not match topic names that
       # begin with a $.  Publishing to a topic which starts with a $ may not be allowed on some servers (which is entirely valid),
       # so this test will not work and should be omitted in that case.
@@ -440,6 +480,40 @@ class Test(unittest.TestCase):
       self.assertEqual(succeeded, True)
       return succeeded
 
+
+
+    """
+        1.取消订阅topic，不会收到此topic发送消息
+    """
+    def test_topic_unsubscribe(self):
+        print("Unsubscribe test starting")
+        succeeded = True
+        try:
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleanstart=True)
+            bclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2)])
+            bclient.subscribe([topics[1]], [MQTTV5.SubscribeOptions(2)])
+            bclient.subscribe([topics[2]], [MQTTV5.SubscribeOptions(2)])
+            time.sleep(1) # wait for all retained messages, hopefully
+            # Unsubscribed from one topic
+            bclient.unsubscribe([topics[0]])    #取消订阅topics[0]
+    
+            aclient.connect(host=host, port=port, cleanstart=True)
+            aclient.publish(topics[0], b"", 1, retained=False)
+            aclient.publish(topics[1], b"", 1, retained=False)
+            aclient.publish(topics[2], b"", 1, retained=False)
+            time.sleep(2)
+    
+            bclient.disconnect()
+            aclient.disconnect()
+            print(callback2.messages)
+            self.assertEqual(len(callback2.messages), 2, callback2.messages)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        self.assertEqual(succeeded, True)
+        print("unsubscribe tests", "succeeded" if succeeded else "failed")
+        return 
     def test_unsubscribe(self):
       callback2.clear()
       bclient.connect(host=host, port=port, cleanstart=True)
@@ -699,12 +773,21 @@ class Test(unittest.TestCase):
     def test_assigned_clientid(self):
       noidclient = mqtt_client.Client("")
       noidclient.setUserName(username1, password1)
-      print("login")
-      connack = noidclient.connect(host=host, port=port, cleanstart=True)
-      print("login end")
-      noidclient.disconnect()
-      logging.info("Assigned client identifier %s" % connack.properties.AssignedClientIdentifier)
-      self.assertTrue(connack.properties.AssignedClientIdentifier != "")
+      succeeded = False
+      try:
+        print("login")
+        connack = noidclient.connect(host=host, port=port, cleanstart=True)
+        # print("login end")
+        # noidclient.disconnect()
+        # logging.info("Assigned client identifier %s" % connack.properties.AssignedClientIdentifier)
+        # self.assertTrue(connack.properties.AssignedClientIdentifier != "")
+      except:
+        # traceback.print_exc()
+        succeeded = True
+      print("The clientid must exist and not be empty")
+      assert succeeded == True
+
+
 
     def test_subscribe_identifiers(self):
       callback.clear()
@@ -954,7 +1037,7 @@ class Test(unittest.TestCase):
         aclient.disconnect()
 
       # 1. client max packet size
-      maximumPacketSize = 65536 # max packet size we want to receive（修改服务端最大发送消息最大数）
+      maximumPacketSize = 64 # max packet size we want to receive（maximumPacketSize 表示单个MQTT控制报文的大小，如果不携带表示不限制）
       connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
       connect_properties.MaximumPacketSize = maximumPacketSize
       connack = aclient.connect(host=host, port=port, cleanstart=True,
@@ -967,13 +1050,13 @@ class Test(unittest.TestCase):
       self.waitfor(callback.subscribeds, 1, 3)
 
       # send a small enough packet, should get this one back
-      payload = b"."*(int(maximumPacketSize/2))
+      payload = b"."*(int(maximumPacketSize/2)) #maximumPacketSize 表示单个MQTT控制报文的大小，如果不携带表示不限制
       aclient.publish(topics[0], payload, 0)
       self.waitfor(callback.messages, 1, 3)
       self.assertEqual(len(callback.messages), 1, callback.messages)
 
       # send a packet too big to receive
-      payload = b"."*maximumPacketSize
+      payload = b"."*maximumPacketSize  #maximumPacketSize 表示单个MQTT控制报文的大小，如果不携带表示不限制
       aclient.publish(topics[0], payload, 1)
       self.waitfor(callback.messages, 2, 3)
       self.assertEqual(len(callback.messages), 1, callback.messages)
@@ -994,13 +1077,13 @@ class Test(unittest.TestCase):
       testcallback = Callbacks()
       # no callback means no background thread, to control receiving
       testclient = mqtt_client.Client(clientid1.encode("utf-8"))
+      testclient.setUserName(username1, password1)
 
       # set receive maximum - the number of concurrent QoS 1 and 2 messages
       clientReceiveMaximum = 2 # set to low number so we can test
       connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
       connect_properties.ReceiveMaximum = clientReceiveMaximum
       connect_properties.SessionExpiryInterval = 0
-      testclient.setUserName(username1, password1)
       connack = testclient.connect(host=host, port=port, cleanstart=True,
                    properties=connect_properties)
 
