@@ -1338,7 +1338,7 @@ class Test(unittest.TestCase):
             # message queueing for offline clients
             callback.clear()
             #用户A登陆
-            connack = aclient.connect(host=host, port=port, cleansession=False)
+            connack = aclient.connect(host=host, port=port, cleansession=True)
             #用户A订阅一个topic
             aclient.subscribe([wildtopics[5]], [2])
             #用户B断开连接
@@ -1451,7 +1451,7 @@ class Test(unittest.TestCase):
         number = 50
         succeeded =  True
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=False)
+            connect = aclient.connect(host=host,port=port,cleansession=True)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(.1)
@@ -1488,7 +1488,7 @@ class Test(unittest.TestCase):
         succeeded =  True
         number = 51
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=False)
+            connect = aclient.connect(host=host,port=port,cleansession=True)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[1])
             time.sleep(.1)
@@ -1527,7 +1527,7 @@ class Test(unittest.TestCase):
         print("Staring：The maximum number of offline messages is zero")
         succeeded =  True
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=False)
+            connect = aclient.connect(host=host,port=port,cleansession=True)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[0])
             time.sleep(.1)
