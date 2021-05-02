@@ -367,6 +367,11 @@ class Test(unittest.TestCase):
                 aclient.subscribe([topics[i]], [2])
                 bclient.subscribe([topics[i]], [2])
                 time.sleep(.2)
+            for num in range(len(topics)):
+                print(num)
+                aclient.unsubscribe([topics[num]])
+                bclient.unsubscribe([topics[num]])
+                time.sleep(.2)
         except:
             succeeded = False
         self.assertEqual(succeeded,True)
@@ -749,7 +754,7 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[5]], [2])
             time.sleep(1)
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
-            aclient.publish(topics[2], b"qos 1", 1, retained=True)
+            aclient.publish(topics[2], b"qos 1", 1, retained=False)
             aclient.publish(topics[3], b"qos 2", 2, retained=True)
             time.sleep(1)
             aclient.disconnect()
@@ -793,7 +798,7 @@ class Test(unittest.TestCase):
         1.用户A先向topic（"TopicA/B", "Topic/C", "TopicA/C"）发送三条retained=true，qos分别为0、1、2消息
         2.用户A在订阅通配topic（+/+）——用户A应该收到三条消息
     """
-    def test_online_retained_messages(self):
+    def test_retained_messages_online(self):
         print("Retained message test starting")
         succeeded = False
         try:
@@ -810,15 +815,14 @@ class Test(unittest.TestCase):
             time.sleep(1)
             aclient.disconnect()
             print(callback.messages)
-            print(callback.messages[0][1])
             assert len(callback.messages) == 3
             #目前排序是按照topic命名排序
             for index in range(len(callback.messages)):
-                if callback.messages[index][1] == b"qos 0":
+                if callback.messages[index][1] == b"qos 0" and callback.messages[index][2] ==0:
                     print(callback.messages[index][1])
-                elif callback.messages[index][1] == b"qos 1":
+                elif callback.messages[index][1] == b"qos 1" and callback.messages[index][2] ==1:
                     print(callback.messages[index][1])
-                elif callback.messages[index][1] == b"qos 2":
+                elif callback.messages[index][1] == b"qos 2" and callback.messages[index][2] ==2:
                     print(callback.messages[index][1])
                 else:
                     print("There is no match")
@@ -846,13 +850,61 @@ class Test(unittest.TestCase):
         print("Retained message test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+
+    """ 
+        1.用户A在线向一个topic发送三条，qos=0、retained=True，qos=1、retained=False,qos=2、retained=True的消息
+        2.用户B连接登陆成功后，订阅此topic后——应该收到1条最新的消息
+    """
+    def test_retained_messages_two(self):
+        print("Retained message test starting")
+        succeeded = False
+        try:
+            # retained messages
+            callback.clear()
+            connack = aclient.connect(host=host, port=port, cleansession=True)
+#             #assert connack.flags == 0x00 # Session present
+            print(topics[1],wildtopics[5])
+            aclient.publish(topics[1], b"qos 0", 0, retained=True)
+            aclient.publish(topics[1], b"qos 2", 2, retained=True)
+            aclient.publish(topics[1], b"qos 1", 1, retained=False)
+
+            time.sleep(5)
+            aclient.subscribe([wildtopics[5]], [2])
+            time.sleep(1)
+            aclient.disconnect()
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            #目前排序是按照topic命名排序
+            assert callback.messages[0][1] == b"qos 2"
+            assert callback.messages[0][2] == 2
+
+            # clear retained messages
+            callback.clear()
+            connack = aclient.connect(host=host, port=port, cleansession=True)
+            # #assert connack.flags == 0x00 # Session present
+            aclient.publish(topics[1], b"", 0, retained=True)
+            aclient.publish(topics[2], b"", 1, retained=True)
+            aclient.publish(topics[3], b"", 2, retained=True)
+            time.sleep(5) # wait for QoS 2 exchange to be completed
+            aclient.subscribe([wildtopics[5]], [2])
+            time.sleep(1)
+            aclient.disconnect()
+
+            assert len(callback.messages) == 0, "callback messages is %s" % callback.messages
+            succeeded = True
+        except:
+            traceback.print_exc()
+        print("Retained message test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
     
     """
         1.用户A在线向一个topic发送三条，retained=true，qos分别为0、1、2的消息
         2.用户B连接登陆成功后，订阅此topic后——应该收到1条最新的消息
     """
-    def test_offline_reatin_message(self):
-        print("offline reatin message test starting")
+    def test_retain_message_one(self):
         succeeded = False
         try:
             callback.clear()
@@ -863,6 +915,7 @@ class Test(unittest.TestCase):
             aclient.publish(topics[1], b"qos 1", 1, retained=True)
             aclient.publish(topics[1], b"qos 2", 2, retained=True)
             time.sleep(5)
+            aclient.disconnect()
             connack = bclient.connect(host=host, port=port, cleansession=True)
             bclient.subscribe([topics[1]], [2])
             time.sleep(1)
@@ -876,6 +929,34 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
+
+    """
+        1.用户A在线向一个topic发送三条，retained=true，qos分别为0、1、2的消息
+        2.用户B连接登陆成功后，订阅此topic后——应该收到1条最新的消息
+    """
+    def test_retain_message_three(self):
+        succeeded = False
+        try:
+            callback.clear()
+            callback2.clear()
+            connack = aclient.connect(host=host, port=port, cleansession=True)
+            # #assert connack.flags == 0x00 # Session present
+            aclient.publish(topics[1], b"qos 0", 0, retained=True)
+            aclient.publish(topics[1], b"qos 1", 1, retained=True)
+            aclient.publish(topics[1], b"qos 2", 2, retained=True)
+            time.sleep(5)
+
+            aclient.subscribe([topics[1]], [2])
+            time.sleep(1)
+            print("callback2.messages is %s"%callback2.messages)
+            assert len(callback2.messages) == 1
+            self.assertEqual(callback2.messages[0][1], b"qos 2")
+            succeeded = True
+        except:
+            traceback.print_exc()
+        print("offline reatin message test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
     
     """
         1.用户A向topic发送retained=True，qos分别为0、1、2消息
@@ -940,7 +1021,7 @@ class Test(unittest.TestCase):
         return succeeded
     
     
-    def test_reatin_true_false_message(self):
+    def test_retain_true_false_message(self):
         print("reatin is true and false message test starting")
         succeeded = False
         try:
@@ -953,10 +1034,8 @@ class Test(unittest.TestCase):
             connack = aclient.connect(host=host, port=port, cleansession=True)
 #             #assert connack.flags == 0x00 # Session present
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
-#             aclient.publish(topics[2], b"qos 1", 1, retained=True)
             aclient.publish(topics[1], b"qos 1", 1, retained=False)
             aclient.publish(topics[1], b"qos 2", 2, retained=True)
-#             aclient.publish(topics[1], b"", 2, retained=True)
             time.sleep(1)
             aclient.disconnect()
             time.sleep(1)
@@ -967,6 +1046,8 @@ class Test(unittest.TestCase):
             self.assertEqual(callback2.messages[0][1], b"qos 0")
             self.assertEqual(callback2.messages[1][1], b"qos 1")
             self.assertEqual(callback2.messages[2][1], b"qos 2")
+            for i in range(3):
+                self.assertEqual(callback2.messages[i][3], False)
             succeeded = True
         except:
             traceback.print_exc()
