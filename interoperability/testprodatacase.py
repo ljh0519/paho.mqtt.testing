@@ -487,8 +487,8 @@ class Test(unittest.TestCase):
         time.sleep(10)
         for i in range(number):
           print("unsub is %s"%i)
-          aclient.unsubscribe(topic[i])
-          bclient.unsubscribe(topic[i])
+          aclient.unsubscribe([topic[i]])
+          bclient.unsubscribe([topic[i]])
           time.sleep(.1)
         time.sleep(10)
       except:

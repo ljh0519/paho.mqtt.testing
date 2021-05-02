@@ -2162,6 +2162,7 @@ class Test(unittest.TestCase):
         try:
             callback2.clear()
             bclient.connect(host=host, port=port, cleansession=True)
+            print(topics[0],topics[1],topics[2])
             bclient.subscribe([topics[0]], [2])
             bclient.subscribe([topics[1]], [2])
             bclient.subscribe([topics[2]], [2])
@@ -2170,9 +2171,9 @@ class Test(unittest.TestCase):
             bclient.unsubscribe([topics[0]])    #取消订阅topics[0]
     
             aclient.connect(host=host, port=port, cleansession=True)
-            aclient.publish(topics[0], b"", 1, retained=False)
-            aclient.publish(topics[1], b"", 1, retained=False)
-            aclient.publish(topics[2], b"", 1, retained=False)
+            aclient.publish(topics[0], b"a1", 1, retained=False)
+            aclient.publish(topics[1], b"a2", 1, retained=False)
+            aclient.publish(topics[2], b"a3", 1, retained=False)
             time.sleep(2)
     
             bclient.disconnect()
