@@ -144,6 +144,18 @@ def will_message_qos(self,willQos=None,subQos=None):
     # bclient.disconnect()
     print(callback2.messages)
     return callback2.messages
+def assert_topic_result(self,callbackmessage,*params):
+    print("Start:判断topic格式是否正确")
+    succeeded = True
+    for i in range(len(callbackmessage)):
+        for num in range(len(params)):
+            print("num,i %d %d"%(num,i))
+            if callbackmessage[i][0] == params[num]:
+                print(callbackmessage[i][0],params[num])
+            else:
+                succeeded = False
+    print("END:判断topic格式 %s"%"succeeded" if succeeded else "is False")
+    return succeeded
 
 
 def test_will_message_qos_zero(self):
@@ -323,7 +335,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
-
+        result = assert_topic_result(self,callback.messages,topics[0])
+        assert result ==True
         print("Basic test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
@@ -616,6 +629,8 @@ class Test(unittest.TestCase):
             self.assertEqual(result[1][2],sub_qos,result[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
         try:
             result1 = qostest(self,sub_qos=0,pub_qos=1,message=message)
@@ -624,6 +639,8 @@ class Test(unittest.TestCase):
             self.assertEqual(result1[1][2],sub_qos,result1[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
         try:
             result2 = qostest(self,sub_qos=0,pub_qos=2,message=message)
@@ -632,8 +649,11 @@ class Test(unittest.TestCase):
             self.assertEqual(result2[1][2],sub_qos,result2[0][2])
         except:
             succeeded = False
-        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+        result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
+        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+        
     
     """
         1.测试服务质量为1
@@ -644,6 +664,7 @@ class Test(unittest.TestCase):
         sub_qos = 1
         result = []
         succeeded = True
+        print("qos =0")
         try:
             result = qostest(self,sub_qos=sub_qos,pub_qos=0,message=message)
             print(len(result))
@@ -652,7 +673,11 @@ class Test(unittest.TestCase):
             self.assertEqual(result[1][2],0,result[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
+        print("qos =1")
+        succeeded = True
         try:
             result1 = qostest(self,sub_qos=sub_qos,pub_qos=1,message=message)
             self.assertEqual(len(result1), 2)
@@ -660,7 +685,11 @@ class Test(unittest.TestCase):
             self.assertEqual(result1[1][2],sub_qos,result1[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
+        print("qos =1")
+        succeeded = True
         try:
             result2 = qostest(self,sub_qos=sub_qos,pub_qos=2,message=message)
             self.assertEqual(len(result2), 2)
@@ -668,8 +697,11 @@ class Test(unittest.TestCase):
             self.assertEqual(result2[1][2],sub_qos,result2[0][2])
         except:
             succeeded = False
-        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+        result = assert_topic_result(self,result2,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
+        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+
             
             
     #测试服务质量为2
@@ -686,6 +718,8 @@ class Test(unittest.TestCase):
             self.assertEqual(result[1][2],0,result[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
         try:
             result1 = qostest(self,sub_qos=sub_qos,pub_qos=1,message=message)
@@ -694,6 +728,8 @@ class Test(unittest.TestCase):
             self.assertEqual(result1[1][2],1,result1[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(result)
         self.assertTrue(succeeded)
         try:
             result2 = qostest(self,sub_qos=sub_qos,pub_qos=2,message=message)
@@ -702,8 +738,11 @@ class Test(unittest.TestCase):
             self.assertEqual(result2[1][2],2,result2[0][2])
         except:
             succeeded = False
+        result = assert_topic_result(self,result2,topics[1])
+        self.assertTrue(result)
+        self.assertTrue(succeeded)  
         print("QoS minimum test was ","succeeded" if succeeded else "falsed")
-        self.assertTrue(succeeded)        
+      
         
 
 
@@ -922,12 +961,14 @@ class Test(unittest.TestCase):
             print(callback2.messages)
             assert len(callback2.messages) == 1
             self.assertEqual(callback2.messages[0][1], b"qos 2")
+            result = assert_topic_result(self,callback2.messages,topics[1])
+            self.assertTrue(result)
             succeeded = True
         except:
             traceback.print_exc()
-        print("offline reatin message test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+        print("offline reatin message test", "succeeded" if succeeded else "failed")
     
 
     """
@@ -1169,6 +1210,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         succeeded = True
         try:
             result = will_message_qos(self,willQos=willQos,subQos=1)
@@ -1177,6 +1220,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         succeeded = True
         try:
             result = will_message_qos(self,willQos=willQos,subQos=2)
@@ -1185,6 +1230,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         print("Will message qos0 test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
 
@@ -1205,6 +1252,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         print("subqos =1")
         succeeded= True
         try:
@@ -1214,7 +1263,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
-
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         print("subqos =2")
         succeeded= True
         try:
@@ -1224,8 +1274,11 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
-        print("Will message qos1 test", "succeeded" if succeeded else "failed")
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         self.assertEqual(succeeded, True)
+        print("Will message qos1 test", "succeeded" if succeeded else "failed")
+        
     
     """
         1.测试遗嘱消息服务质量为2与订阅此topic，服务质量取最小值
@@ -1242,6 +1295,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         succeeded = True
         try:
             result = will_message_qos(self,willQos=willQos,subQos=1)
@@ -1250,6 +1305,8 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         succeeded = True
         try:
             result = will_message_qos(self,willQos=willQos,subQos=2)
@@ -1258,9 +1315,12 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
-        print("Will message qos2 test", "succeeded" if succeeded else "failed")
+        result = assert_topic_result(self,result,topics[2])
+        self.assertTrue(result)
         self.assertEqual(succeeded, True)
         return callback2.messages
+        print("Will message qos2 test", "succeeded" if succeeded else "failed")
+
   
     """
         1.使用错误的cliendid格式，例如：deviceid#id
@@ -2268,6 +2328,33 @@ class Test(unittest.TestCase):
         print("unsubscribe tests", "succeeded" if succeeded else "failed")
         return 
     
+    """
+        测试验证取消订阅一个未订阅的topic，不会断开连接
+    """
+    def test_topic_unsubscribe_exist(self):
+        print("Unsubscribe test starting")
+        succeeded = True
+        try:
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleansession=True)
+            print(topics[0],topics[1],topics[2])
+            bclient.subscribe([topics[0]], [2])
+            print("取消订阅一个未订阅的topic")
+            bclient.unsubscribe([topics[1]])
+            print("取消订阅后，pub一条消息，验证未断开连接")
+            bclient.publish(topics[0], b"a1", 1, retained=False)
+            time.sleep(1) # wait for all retained messages, hopefully
+    
+            bclient.disconnect()
+  
+            print(callback2.messages)
+            self.assertEqual(len(callback2.messages), 1, callback2.messages)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        self.assertEqual(succeeded, True)
+        print("unsubscribe tests", "succeeded" if succeeded else "failed")
+        return 
     
     def test_repetition_sub(self):
         print("test repetition sub starting")
