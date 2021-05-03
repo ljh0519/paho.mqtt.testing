@@ -583,7 +583,7 @@ class Test(unittest.TestCase):
       try:
         callback.clear()
         callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=False)
+        connack = aclient.connect(host=host, port=port,cleansession=True)
         aclient.subscribe([topics[1]], [2])
         time.sleep(1)
         print(callback.subscribeds)
@@ -600,7 +600,7 @@ class Test(unittest.TestCase):
         # aclient.disconnect()
         # bclient.disconnect()
         aclient.terminate()
-        bclient.terminate
+        bclient.terminate()
         print("user A and b shutdown")
         print(callback.messages)
         self.assertEqual(len(callback.messages), 1)
