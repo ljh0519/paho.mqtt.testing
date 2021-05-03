@@ -127,23 +127,27 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     aclient.disconnect()
     print(callback2.messages)
     return callback2.messages
+
 def will_message_qos(self,willQos=None,subQos=None):
     succeeded = True
     callback2.clear()
+    callback.clear()
+    print("will set will message ", willQos, subQos)
     assert len(callback2.messages) == 0, callback2.messages
     connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
       willTopic=topics[2], willMessage=b"test will message qos zero", keepalive=2,willQoS=willQos)
     # #assert connack.flags == 0x00 # Session present
-    print(topics[2])
-    connack = bclient.connect(host=host, port=port, cleansession=False)
+    print("bclient will subscribe = ", topics[2])
+    connack = bclient.connect(host=host, port=port, cleansession=True)
     bclient.subscribe([topics[2]], [subQos])
     time.sleep(.1)
     print("usera shutdown")
     aclient.terminate()
     time.sleep(5)
-    # bclient.disconnect()
-    print(callback2.messages)
+    bclient.disconnect()
+    print("bclient recv message = ", callback2.messages)
     return callback2.messages
+
 def assert_topic_result(self,callbackmessage,*params):
     print("Start:判断topic格式是否正确")
     succeeded = True
@@ -162,13 +166,14 @@ def test_will_message_qos_zero(self):
       # will messages
       print("Will message test starting")
       succeeded = True
-      callback2.clear()
-      assert len(callback2.messages) == 0, callback2.messages
       try:
+        callback.clear()
+        callback2.clear()
+        assert len(callback2.messages) == 0, callback2.messages
         connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
           willTopic=topics[2], willMessage=b"client not disconnected", keepalive=2,willQoS=0)
         # #assert connack.flags == 0x00 # Session present
-        connack = bclient.connect(host=host, port=port, cleansession=False)
+        connack = bclient.connect(host=host, port=port, cleansession=True)
         bclient.subscribe([topics[2]], [0])
         time.sleep(.1)
         aclient.terminate()
@@ -851,9 +856,9 @@ class Test(unittest.TestCase):
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[2], b"qos 1", 1, retained=True)
             aclient.publish(topics[3], b"qos 2", 2, retained=True)
-            time.sleep(5)
-            aclient.subscribe([wildtopics[5]], [2])
             time.sleep(1)
+            aclient.subscribe([wildtopics[5]], [2])
+            time.sleep(5)
             aclient.disconnect()
             print(callback.messages)
             assert len(callback.messages) == 3
@@ -1183,25 +1188,25 @@ class Test(unittest.TestCase):
     def test_will_message_revise(self):
         print("revise will message test starting")
         succeeded = True
-        callback2.clear()
-        assert len(callback2.messages) == 0, callback2.messages
         try:
-            connack = aclient.connect(host=host, port=port, cleansession=False, willFlag=True,
+            callback2.clear()
+            callback3.clear()
+            assert len(callback2.messages) == 0, callback2.messages
+            connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
               willTopic=topics[2], willMessage=b"will message",willQoS=2)
-            connack = bclient.connect(host=host, port=port, cleansession=False)
+            connack = bclient.connect(host=host, port=port, cleansession=True)
             bclient.subscribe([topics[2]], [2])
             time.sleep(1)
-            callback3.clear()
             print("new user login")
-            connack = cclient.connect(host=host, port=port, cleansession=False,willFlag=True,
+            connack = cclient.connect(host=host, port=port, cleansession=True,willFlag=True,
               willTopic=topics[2], willMessage=b" new will messages")
             print("usera login succeeded")
             cclient.terminate()
             print("user c shutdown")
             time.sleep(5)
-            print(callback3.messages)
-            print(callback2.messages)
-            print(callback.messages)
+            # print("cclient recv message = ", callback3.messages)
+            print("bclient recv message = ", callback2.messages)
+            # print("aclient recv message = ", callback.messages)
             assert len(callback2.messages) == 1, callback2.messages  # should have the will message
             self.assertEqual(callback2.messages[0][1],b" new will messages")
         except:
@@ -1546,6 +1551,7 @@ class Test(unittest.TestCase):
         1.测试消息最大长度为50字节（官网规定最大字节是65535，为了测试，目前嘉豪给设置的最大字节是50）
     """
     def test_send_message_length_50(self):
+        pass
         print("Staring：The maximum length of offline messages is 50")
         succeeded =  True
         number = 50
