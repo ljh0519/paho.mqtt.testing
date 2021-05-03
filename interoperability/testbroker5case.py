@@ -19,6 +19,7 @@
 import unittest
 
 import mqtt.clients.V5 as mqtt_client, time, logging, socket, sys, getopt, traceback
+import mqtt.clients.V311 as mqtt_client_v311
 import mqtt.formats.MQTTV5 as MQTTV5
 
 class Callbacks(mqtt_client.Callback):
@@ -119,6 +120,44 @@ def cleanRetained():
   curclient.disconnect()
   time.sleep(.1)
 
+
+def qostest(self,sub_qos=None,pub_qos=None,message=None):
+  callback.clear()
+  callback2.clear()
+  #用户B连接
+  print("用户B连接")
+  bclient.connect(host=host, port=port, cleanstart=True)
+  print(wildtopics[6],topics[1])
+  bclient.subscribe([wildtopics[6]], [MQTTV5.SubscribeOptions(sub_qos)])
+  time.sleep(1)
+  bclient.publish(topics[1], message, pub_qos, retained=False)
+  time.sleep(2)
+  #用户a连接
+  print("用户A连接")
+  aclient.connect(host=host, port=port, cleanstart=True)
+  aclient.publish(topics[1], message, pub_qos, retained=False)
+  time.sleep(1)
+  bclient.disconnect()
+  time.sleep(1)
+  aclient.disconnect()
+  print(callback2.messages)
+  return callback2.messages
+
+
+def assert_topic_result(self,callbackmessage,*params):
+  print("Start:判断topic格式是否正确")
+  succeeded = True
+  for i in range(len(callbackmessage)):
+      for num in range(len(params)):
+          print("num,i %d %d"%(num,i))
+          if callbackmessage[i][0] == params[num]:
+              print(callbackmessage[i][0],params[num])
+          else:
+              succeeded = False
+  print("END:判断topic格式 %s"%"succeeded" if succeeded else "is False")
+  return succeeded
+
+
 def cleanup():
   # clean all client state
   print("clean up starting")
@@ -160,12 +199,13 @@ class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
       setData()
-      global callback, callback2, aclient, bclient,cclient,callback3
+      global callback, callback2, aclient, bclient,cclient,dclient,callback3,callback4
       # cleanup()
 
       callback = Callbacks()
       callback2 = Callbacks()
       callback3 = Callbacks()
+      callback4 = Callbacks()
 
       #aclient = mqtt_client.Client(b"\xEF\xBB\xBF" + "myclientid".encode("utf-8"))
       aclient = mqtt_client.Client(clientid1.encode("utf-8"))
@@ -179,6 +219,10 @@ class Test(unittest.TestCase):
       cclient = mqtt_client.Client(clientid1.encode("utf-8"))
       cclient.registerCallback(callback3)
       cclient.setUserName(username1, password1)
+
+      dclient = mqtt_client_v311.Client(clientid2.encode("utf-8"))
+      dclient.registerCallback(callback2)
+      dclient.setUserName(username2, password2)
 
 
     # def setUp(self):
@@ -457,7 +501,7 @@ class Test(unittest.TestCase):
         aclient.subscribe([nosubscribe_topics[0]], [MQTTV5.SubscribeOptions(2)])
         time.sleep(1)
         # subscribeds is a list of (msgid, [qos])
-        logging.info(callback.subscribeds)
+        print("callback.subscribeds[0][1] is %s"%callback.subscribeds[0][1])
         assert callback.subscribeds[0][1][0].value == 0x80, "return code should be 0x80 %s" % callback.subscribeds
       except:
         traceback.print_exc()
@@ -517,7 +561,10 @@ class Test(unittest.TestCase):
 
       bclient.disconnect()
       aclient.disconnect()
+      print("callback2.messages is %s"%callback2.messages)
       self.assertEqual(len(callback2.messages), 2, callback2.messages)
+
+
 
 
     """
@@ -587,6 +634,7 @@ class Test(unittest.TestCase):
 
     def test_user_properties(self):
       callback.clear()
+      succeeded = True
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2)])
       publish_properties = MQTTV5.Properties(MQTTV5.PacketTypes.PUBLISH)
@@ -599,6 +647,16 @@ class Test(unittest.TestCase):
         time.sleep(.1)
       aclient.disconnect()
       self.assertEqual(len(callback.messages), 3, callback.messages)
+      try:
+        for i in range(len(callback.messages)):
+          print("callback.messages[%d] is %s"%(i,callback.messages[i][5]))
+          if  callback.messages[i][0] == topics[0]:
+            print(callback.messages[i][0])
+          else:
+            succeeded = False
+      except:
+        succeeded = False
+      assert succeeded == True
       userprops = callback.messages[0][5].UserProperty
       self.assertTrue(userprops in [[("a", "2"), ("c", "3")],[("c", "3"), ("a", "2")]], userprops)
       userprops = callback.messages[1][5].UserProperty
@@ -694,7 +752,7 @@ class Test(unittest.TestCase):
         total += interval
         time.sleep(interval)
 
-    def test_subscribe_options_noLocal(self):
+    def test_subscribe_noLocal(self):
       callback.clear()
       callback2.clear()
 
@@ -719,7 +777,7 @@ class Test(unittest.TestCase):
       callback2.clear()
 
 
-    def test_subscribe_options_retainAsPublished(self):
+    def test_subscribe_retainAsPublished(self):
       # retainAsPublished
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2, retainAsPublished=True)])
@@ -740,7 +798,7 @@ class Test(unittest.TestCase):
     """
       测试A发布retained=True消息，A用户订阅topic，收到最新topic的retained=True消息
     """
-    def test_subscribe_options_retainHandling(self):
+    def test_subscribe_retainHandling(self):
       # retainHandling
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
@@ -800,7 +858,7 @@ class Test(unittest.TestCase):
     """
       测试A发布retained=True消息，B用户订阅topic，收到最新topic的retained=True消息
     """
-    def test_subscribe_options_retainHandling_three(self):
+    def test_subscribe_retainHandling_three(self):
       # retainHandling
       callback.clear()
       callback2.clear()
@@ -862,7 +920,7 @@ class Test(unittest.TestCase):
       cleanRetained()
 
 
-    def test_subscribe_options_retainHandling_one(self):
+    def test_subscribe_retainHandling_one(self):
       # retainHandling
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
@@ -888,7 +946,7 @@ class Test(unittest.TestCase):
       # aclient.disconnect()
 
 
-    def test_subscribe_options_retainHandling_two(self):
+    def test_subscribe_retainHandling_two(self):
       # retainHandling
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
@@ -916,7 +974,7 @@ class Test(unittest.TestCase):
         客户端直接依靠消息中的 RETAIN 标识来区分这是一个正常的转发消息还是一个保留消息，而不是去判断消息是否是自己订阅后收到的第一个消息（转发消息甚至可能会先于保留消息被发送，视不同 Broker 的具体实现而定）。
 
     """
-    def test_subscribe_options_retainAsPublished_one(self):
+    def test_subscribe_retainAsPublished_one(self):
       callback.clear()
       callback2.clear()
 
@@ -944,7 +1002,7 @@ class Test(unittest.TestCase):
       测试retainAsPublished=True时，其他用户再订阅，查看收到messages中retained消息为true
     """
 
-    def test_subscribe_options_retainAsPublished_two(self):
+    def test_subscribe_retainAsPublished_two(self):
       callback.clear()
       callback2.clear()
 
@@ -972,7 +1030,7 @@ class Test(unittest.TestCase):
     """
       测试retainAsPublished=False时，其他用户再订阅，查看收到messages中retained消息为true
     """
-    def test_subscribe_options_retainAsPublished_three(self):
+    def test_subscribe_retainAsPublished_three(self):
       callback.clear()
       callback2.clear()
 
@@ -1036,6 +1094,7 @@ class Test(unittest.TestCase):
       bclient.publish(topics[1], b"sub identifier test", 1, retained=False)
 
       self.waitfor(callback2.messages, 1, 3)
+      print("callback2.messages is %s"%callback2.messages)
       self.assertEqual(len(callback2.messages), 2, callback2.messages)
       expected_subsids = set([2, 3])
       print("expected_subsids is %s"%expected_subsids)
@@ -1169,6 +1228,7 @@ class Test(unittest.TestCase):
       publish_properties = MQTTV5.Properties(MQTTV5.PacketTypes.PUBLISH)
       publish_properties.TopicAlias = 0 # topic alias 0 not allowed
       print("sub messages is:topic alias 0 ")
+      print("pub is %s"%topics[0])
       aclient.publish(topics[0], "topic alias 0", 1, properties=publish_properties)
 
       # should get back a disconnect with Topic alias invalid
@@ -1210,10 +1270,15 @@ class Test(unittest.TestCase):
       print("前PUBLISH消息的topic为0，那么接受方需要解析 Topic Alias 中的值，用该值去查找对应的topic")
       aclient.publish("", b"topic alias 2", 1, properties=publish_properties)
       self.waitfor(callback.messages, 2, 3)
-      print("第一次publish")
+      print("第二次publish")
       print(callback.messages)
       self.assertEqual(len(callback.messages), 2, callback.messages)
-
+      print("判断topic与订阅的topic一致")
+      succeeded = True
+      for i in range(len(callback.messages)):
+        self.assertEqual(callback.messages[i],topics[0])
+        succeeded  =False
+      assert succeeded == True
       aclient.disconnect() # should get rid of the topic aliases but not subscriptions
 
       # check aliases have been deleted
@@ -1230,6 +1295,7 @@ class Test(unittest.TestCase):
 
       # should get back a disconnect with Topic alias invalid
       self.waitfor(callback.disconnects, 1, 2)
+      print("callback.disconnects is %s"%callback.disconnects)
       self.assertEqual(len(callback.disconnects), 1, callback.disconnects)
       #print("disconnect", str(callback.disconnects[0]["reasonCode"]))
       #self.assertEqual(callback.disconnects, 1, callback.disconnects)
@@ -1266,6 +1332,7 @@ class Test(unittest.TestCase):
       self.assertTrue(hasattr(callback.messagedicts[0]["properties"], "TopicAlias"), callback.messagedicts[0]["properties"])
       topicalias = callback.messagedicts[0]["properties"].TopicAlias
 
+      print("server topic alias is %s"%topicalias)
       self.assertTrue(topicalias > 0)
       self.assertEqual(callback.messagedicts[0]["topicname"], topics[0])
 
@@ -1279,7 +1346,7 @@ class Test(unittest.TestCase):
 
       serverTopicAliasMaximum = 0 # no server topic alias allowed
       connect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.CONNECT)
-      #connect_properties.TopicAliasMaximum = serverTopicAliasMaximum # default is 0
+      connect_properties.TopicAliasMaximum = serverTopicAliasMaximum # default is 0
       connack = aclient.connect(host=host, port=port, cleanstart=True,
                                        properties=connect_properties)
       clientTopicAliasMaximum = 0
@@ -1679,6 +1746,207 @@ class Test(unittest.TestCase):
 
       aclient.disconnect()
       bclient.disconnect()
+
+      
+    """
+        1.测试服务质量为零
+    """
+    def test_messages_qos_zero(self):
+        print("QoS is minimized test starting")
+        message = b"sub_qos = 0,pub_qos=0"
+        sub_qos = 0
+        succeeded = True
+        result =[]
+        try:
+            result = qostest(self,sub_qos=sub_qos,pub_qos=0,message=message)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0][2],sub_qos,result[0][2])
+            self.assertEqual(result[1][2],sub_qos,result[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        message = b"sub_qos = 0,pub_qos=1"
+        try:
+            result1 = qostest(self,sub_qos=0,pub_qos=1,message=message)
+            self.assertEqual(len(result1), 2)
+            self.assertEqual(result1[0][2],sub_qos,result1[0][2])
+            self.assertEqual(result1[1][2],sub_qos,result1[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        message = b"sub_qos = 0,pub_qos=2"
+        try:
+            result2 = qostest(self,sub_qos=0,pub_qos=2,message=message)
+            self.assertEqual(len(result2), 2)
+            self.assertEqual(result2[0][2],sub_qos,result2[0][2])
+            self.assertEqual(result2[1][2],sub_qos,result2[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+        
+    
+    """
+        1.测试服务质量为1
+    """
+    def test_messages_qos_one(self):
+        print("QoS is minimized test starting")
+        message = b"QoS is minimized "
+        sub_qos = 1
+        result = []
+        succeeded = True
+        print("qos =0")
+        try:
+            result = qostest(self,sub_qos=sub_qos,pub_qos=0,message=message)
+            print(len(result))
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0][2],0,result[0][2])
+            self.assertEqual(result[1][2],0,result[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        print("qos =1")
+        succeeded = True
+        try:
+            result1 = qostest(self,sub_qos=sub_qos,pub_qos=1,message=message)
+            self.assertEqual(len(result1), 2)
+            self.assertEqual(result1[0][2],sub_qos,result1[0][2])
+            self.assertEqual(result1[1][2],sub_qos,result1[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        print("qos =2")
+        succeeded = True
+        try:
+            result2 = qostest(self,sub_qos=sub_qos,pub_qos=2,message=message)
+            self.assertEqual(len(result2), 2)
+            self.assertEqual(result2[0][2],sub_qos,result2[0][2])
+            self.assertEqual(result2[1][2],sub_qos,result2[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result2,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+
+            
+            
+    #测试服务质量为2
+    def test_messages_qos_two(self):
+        print("QoS is minimized test starting")
+        message = b"QoS is minimized "
+        sub_qos = 2
+        result = []
+        succeeded = True
+        try:
+            result = qostest(self,sub_qos=sub_qos,pub_qos=0,message=message)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0][2],0,result[0][2])
+            self.assertEqual(result[1][2],0,result[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        try:
+            result1 = qostest(self,sub_qos=sub_qos,pub_qos=1,message=message)
+            self.assertEqual(len(result1), 2)
+            self.assertEqual(result1[0][2],1,result1[0][2])
+            self.assertEqual(result1[1][2],1,result1[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result1,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)
+        try:
+            result2 = qostest(self,sub_qos=sub_qos,pub_qos=2,message=message)
+            self.assertEqual(len(result2), 2)
+            self.assertEqual(result2[0][2],2,result2[0][2])
+            self.assertEqual(result2[1][2],2,result2[0][2])
+        except:
+            succeeded = False
+        topic_result = assert_topic_result(self,result2,topics[1])
+        self.assertTrue(topic_result)
+        self.assertTrue(succeeded)  
+        print("QoS minimum test was ","succeeded" if succeeded else "falsed")
+ 
+
+    """
+      测试mqtt v3.x与v5.x互通"
+    """
+    def test_v3_v5(self):
+        print("测试mqtt v3.x与v5.x互通")
+        print(" Start：测试场景一:v3.x订阅topic，v5.x发布消息")
+        succeeded =True
+        callback.clear()
+        callback4.clear()
+        try:
+            connectA = aclient.connect(host=host,port=port,cleanstart=True)
+            connectB = dclient.connect(host=host,port=port,cleansession=True)
+            print("用户A订阅的topic：%s"%wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(1)])
+            print("用户B发布消息topic：%s"%topics[1])
+            for i in range(3):
+                print("i = %d"%i)
+                dclient.publish(topics[1],b"test V3.x and V5.x interoperability num=%d"%i,i)
+                time.sleep(1)    
+        except:
+            print("测试v3.x与v5.x互通出现错误")
+            succeeded = False
+        print("用户A获取的消息内容长度%d %s"%(len(callback.messages),callback.messages))
+        assert len(callback.messages) == 3
+        print("判断用户A收到的消息，topic格式与期望一致")
+        topic_result = assert_topic_result(self,callback.messages,topics[1])
+        assert topic_result == True
+        self.assertEqual(callback.messages[0][1] == 0,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        self.assertEqual(callback.messages[0][1] == 1,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        self.assertEqual(callback.messages[0][1] == 1,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        assert succeeded ==True
+        aclient.disconnect()
+        dclient.disconnect()
+        print(" End：测试场景一:v3.x订阅topic，v5.x发布消息 %s"%"succeeded" if succeeded else "is False")
+
+
+        succeeded = True
+        print(" Start：测试场景二:v5.x订阅topic，v3.x发布消息")
+        try:
+            connectA = aclient.connect(host=host,port=port,cleanstart=True)
+            connectB = dclient.connect(host=host,port=port,cleansession=True)
+            print("用户B订阅的topic：%s"%wildtopics[0])
+            dclient.subscribe([wildtopics[0]],[1])
+            print("用户A发布消息topic：%s"%topics[1])
+            for i in range(3):
+                aclient.publish(topics[1],b"est V3.x and V5.x interoperability", i,retained=False)
+                time.sleep(1)
+        except:
+            print("测试v3.x与v5.x互通出现错误")
+            succeeded = False
+        print("callback4.messages is %s"%callback4.messages)
+        assert len(callback4.messages) == 3
+        print("判断用户B收到的消息，topic格式与期望一致")
+        topic_result = assert_topic_result(self,callback.messages,topics[1])
+        assert topic_result == True
+        self.assertEqual(callback.messages[0][1] == 0,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        self.assertEqual(callback.messages[0][1] == 1,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        self.assertEqual(callback.messages[0][1] == 2,"用户B收到的消息质量为%d"%callback.messages[0][1])
+        assert succeeded ==True
+        aclient.disconnect()
+        dclient.disconnect()
+        print(" End：测试场景一:v5.x订阅topic，v3.x发布消息 %s"%"succeeded" if succeeded else "is False")
+
+
+
+
 
 
 def setData():

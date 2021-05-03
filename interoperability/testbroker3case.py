@@ -485,7 +485,6 @@ class Test(unittest.TestCase):
         try:
             connect = aclient.connect(host=host,port=port,username=username1,password=password2)
             print("login succeed")
-        
         except:
             traceback.print_exc()
             succeeded = True
@@ -496,7 +495,7 @@ class Test(unittest.TestCase):
 
 
     """
-        1.验证用户名称（username、password）与appid不匹配
+        1.验证用户名称username与password不匹配
     """
     def test_login_username_and_appid_donot_math(self):
         print("test_login_username_and_appid_donot_math starting")
@@ -1331,7 +1330,7 @@ class Test(unittest.TestCase):
         clientid = error_cliendid["error_format_one"]
         print(clientid,username1,password1)
         succeeded = clientidtest(self,clientid,username1,password1)
-        self.assertEqual(succeeded, True)
+        self.assertEqual(succeeded, False)
         print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
 
 
@@ -1423,7 +1422,7 @@ class Test(unittest.TestCase):
         print("clientid same test starting")
         succeeded = True
         try:
-            connect = aclient.connect(host=host, port=port, cleansession=False) # 用户A登陆
+            connect = aclient.connect(host=host, port=port, cleansession=True) # 用户A登陆
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(.1)
@@ -1479,7 +1478,7 @@ class Test(unittest.TestCase):
             # message queueing for offline clients
             callback.clear()
             #用户A登陆
-            connack = aclient.connect(host=host, port=port, cleansession=True)
+            connack = aclient.connect(host=host, port=port, cleansession=False)
             #用户A订阅一个topic
             aclient.subscribe([wildtopics[5]], [2])
             #用户B断开连接
@@ -1592,7 +1591,7 @@ class Test(unittest.TestCase):
         number = 50
         succeeded =  True
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=True)
+            connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(.1)
@@ -1629,7 +1628,7 @@ class Test(unittest.TestCase):
         succeeded =  True
         number = 51
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=True)
+            connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[1])
             time.sleep(.1)
@@ -1668,7 +1667,7 @@ class Test(unittest.TestCase):
         print("Staring：The maximum number of offline messages is zero")
         succeeded =  True
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=True)
+            connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[0])
             time.sleep(.1)
