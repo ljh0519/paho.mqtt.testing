@@ -195,7 +195,7 @@ def clientidtest(self,clientid,username,apppassword):
         client0.setUserName(username, apppassword)
         # try:
         client0.connect(host=host, port=port, cleansession=True) # should work
-        print(wildtopics[0],topics[1])
+        print("will subscribe : ", wildtopics[0], topics[1])
         client0.subscribe([wildtopics[0]],[2])
         time.sleep(.1)
         client0.publish(topics[1],b"test cliendid",2,retained=False)
@@ -215,7 +215,7 @@ def clientidtest(self,clientid,username,apppassword):
     except:
         traceback.print_exc()
         succeeded = False
-    print("error appkey clientid test", "succeeded" if succeeded else "failed")
+    print("<<error appkey clientid test>>", "succeeded" if succeeded else "failed")
     return succeeded
 
 
@@ -483,6 +483,8 @@ class Test(unittest.TestCase):
         succeeded = False
 
         try:
+            print("username = ", username1)
+            print("password = ", password2)
             connect = aclient.connect(host=host,port=port,username=username1,password=password2)
             print("login succeed")
         
@@ -583,16 +585,16 @@ class Test(unittest.TestCase):
       try:
         callback.clear()
         callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=False)
+        connack = aclient.connect(host=host, port=port,cleansession=True)
         aclient.subscribe([topics[1]], [2])
         time.sleep(1)
-        print(callback.subscribeds)
+        print("aclient.subscribeds = ", callback.subscribeds)
         # aclient.disconnect()
         aclient.terminate()
         print("user A shutdown")
         time.sleep(2)
         connack = aclient.connect(host=host, port=port,cleansession=False)
-        print(callback.subscribeds)
+        print("aclient.subscribeds = ", callback.subscribeds)
         time.sleep(2)
         connack = bclient.connect(host=host, port=port,cleansession=True)
         bclient.publish(topics[1], b"qos1", 1, retained=False)
@@ -600,9 +602,9 @@ class Test(unittest.TestCase):
         # aclient.disconnect()
         # bclient.disconnect()
         aclient.terminate()
-        bclient.terminate
+        bclient.terminate()
         print("user A and b shutdown")
-        print(callback.messages)
+        print("aclient.messages = ", callback.messages)
         self.assertEqual(len(callback.messages), 1)
         self.assertEqual(callback.messages[0][1], b"qos1")
       except:
@@ -985,13 +987,13 @@ class Test(unittest.TestCase):
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[1], b"qos 1", 1, retained=True)
             aclient.publish(topics[1], b"qos 2", 2, retained=True)
-            time.sleep(5)
+            time.sleep(1)
 
             aclient.subscribe([topics[1]], [2])
             time.sleep(1)
-            print("callback2.messages is %s"%callback2.messages)
-            assert len(callback2.messages) == 1
-            self.assertEqual(callback2.messages[0][1], b"qos 2")
+            print("callback2.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            self.assertEqual(callback.messages[0][1], b"qos 2")
             succeeded = True
         except:
             traceback.print_exc()
@@ -1067,12 +1069,16 @@ class Test(unittest.TestCase):
         succeeded = False
         try:
             # retained messages
-            callback.clear()
-            callback2.clear()
             connack = bclient.connect(host=host, port=port, cleansession=True)
             bclient.subscribe([topics[1]], [2])
-            
+
             connack = aclient.connect(host=host, port=port, cleansession=True)
+            aclient.publish(topics[1], b"", 0, retained=True)
+            time.sleep(1)
+            callback.clear()
+            callback2.clear()
+            
+            
 #             #assert connack.flags == 0x00 # Session present
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[1], b"qos 1", 1, retained=False)
@@ -1084,9 +1090,20 @@ class Test(unittest.TestCase):
             print(callback2.messages)
             print(len(callback2.messages))
             assert len(callback2.messages) == 3
-            self.assertEqual(callback2.messages[0][1], b"qos 0")
-            self.assertEqual(callback2.messages[1][1], b"qos 1")
-            self.assertEqual(callback2.messages[2][1], b"qos 2")
+            hasQos0 = False
+            hasQos1 = False
+            hasQos2 = False
+            for i in range(3):
+                if callback2.messages[i][2] == 0:
+                    hasQos0 = True
+                elif callback2.messages[i][2] == 1:
+                    hasQos1 = True
+                elif callback2.messages[i][2] == 2:
+                    hasQos2 = True
+            
+            self.assertEqual(hasQos0, True)
+            self.assertEqual(hasQos1, True)
+            self.assertEqual(hasQos2, True)
             for i in range(3):
                 self.assertEqual(callback2.messages[i][3], False)
             succeeded = True
@@ -1329,9 +1346,11 @@ class Test(unittest.TestCase):
     def test_clientid_error_format_one(self):
         print("error cliendid format \"eviceid#id\"test starting")
         clientid = error_cliendid["error_format_one"]
-        print(clientid,username1,password1)
+        print("clientid = ",clientid)
+        print("username = ", username1)
+        print("password = ",password1)
         succeeded = clientidtest(self,clientid,username1,password1)
-        self.assertEqual(succeeded, True)
+        self.assertEqual(succeeded, False)
         print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
 
 
@@ -1385,7 +1404,7 @@ class Test(unittest.TestCase):
             bclient.subscribe([wildtopics[0]],[2])
             connect = client0.connect(host=host,port=port,cleansession=True)
             client0.publish(topics[1],b"test",1,retained=False)
-            time.sleep(.1)
+            time.sleep(1)
             print(len(callback2.messages))
             assert len(callback2.messages) == 1
             self.assertEqual(callback2.messages[0][1],b"test")
@@ -1423,13 +1442,13 @@ class Test(unittest.TestCase):
         print("clientid same test starting")
         succeeded = True
         try:
-            connect = aclient.connect(host=host, port=port, cleansession=False) # 用户A登陆
+            connect = aclient.connect(host=host, port=port, cleansession=True) # 用户A登陆
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
-            time.sleep(.1)
+            time.sleep(1)
             connect = cclient.connect(host=host, port=port, cleansession=False)  #使用相同的clientid再次登陆
             cclient.publish(topics[1],b"test clientid same connect",2,retained=False)
-            time.sleep(.1)
+            time.sleep(1)
             print(callback.messages)
             print(callback3.messages)
             assert len(callback3.messages) == 1
@@ -1479,10 +1498,10 @@ class Test(unittest.TestCase):
             # message queueing for offline clients
             callback.clear()
             #用户A登陆
-            connack = aclient.connect(host=host, port=port, cleansession=True)
+            connack = aclient.connect(host=host, port=port, cleansession=False)
             #用户A订阅一个topic
             aclient.subscribe([wildtopics[5]], [2])
-            #用户B断开连接
+            #用户A断开连接
             aclient.disconnect()
             #用户B登陆
             connack = bclient.connect(host=host, port=port, cleansession=True)
@@ -1629,8 +1648,8 @@ class Test(unittest.TestCase):
         succeeded =  True
         number = 51
         try:
-            connect = aclient.connect(host=host,port=port,cleansession=True)
-            print(wildtopics[0],topics[1])
+            connect = aclient.connect(host=host,port=port,cleansession=False)
+            print("will subscribe = ",wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[1])
             time.sleep(.1)
             print("waiting for disconnect")
@@ -1645,7 +1664,7 @@ class Test(unittest.TestCase):
             time.sleep(2)
             connect = aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(5)
-            print(callback.messages)
+            print("aclient.message = ", callback.messages)
             aclient.terminate()
             bclient.terminate()
             time.sleep(1)
@@ -1771,6 +1790,9 @@ class Test(unittest.TestCase):
       try:
         callback.clear()
         callback2.clear()
+        bclient.connect(host=host, port=port, cleansession=True)
+        bclient.disconnect()
+        time.sleep(.1)
         bclient.connect(host=host, port=port, cleansession=False)
         bclient.subscribe([wildtopics[6]], [2])
         bclient.pause() # stops responding to incoming publishes
