@@ -162,33 +162,6 @@ def assert_topic_result(self,callbackmessage,*params):
     return succeeded
 
 
-def test_will_message_qos_zero(self):
-      # will messages
-      print("Will message test starting")
-      succeeded = True
-      try:
-        callback.clear()
-        callback2.clear()
-        assert len(callback2.messages) == 0, callback2.messages
-        connack = aclient.connect(host=host, port=port, cleansession=True, willFlag=True,
-          willTopic=topics[2], willMessage=b"client not disconnected", keepalive=2,willQoS=0)
-        # #assert connack.flags == 0x00 # Session present
-        connack = bclient.connect(host=host, port=port, cleansession=True)
-        bclient.subscribe([topics[2]], [0])
-        time.sleep(.1)
-        aclient.terminate()
-        time.sleep(5)
-        bclient.disconnect()
-        print(callback2.messages)
-        assert len(callback2.messages) == 1, callback2.messages  # should have the will message
-        self.assertEqual(callback2.messages[0][1],b"client not disconnected")
-      except:
-        traceback.print_exc()
-        succeeded = False
-      print("Will message test", "succeeded" if succeeded else "failed")
-      self.assertEqual(succeeded, True)
-      return succeeded
-
 
 def clientidtest(self,clientid,username,apppassword):
     print("clientid test starting")
@@ -354,7 +327,7 @@ class Test(unittest.TestCase):
     """
     def test_subscription_continuous(self):
         print("test subnum max starting")
-        print(print(topics),len(topics),len(wildtopics))
+        print(topics,len(topics),len(wildtopics))
         connack = aclient.connect(host=host,port=port)
         connack = bclient.connect(host=host,port=port)
         succeeded = True
@@ -497,27 +470,6 @@ class Test(unittest.TestCase):
             succeeded = True
         print("test_login_username_and_paw_donot_math starting %s""succeeded" if succeeded else "failed")
         assert succeeded == True
-
-
-
-
-    """
-        1.验证用户名称username与password不匹配
-    """
-    def test_login_username_and_appid_donot_math(self):
-        print("test_login_username_and_appid_donot_math starting")
-        succeeded = False
-        try:
-            aclient0 = mqtt_client.Client(clientid2.encode("utf-8"))
-            connect = aclient0.connect(host=host,port=port)
-            print("login succeed")
-        
-        except:
-            traceback.print_exc()
-            succeeded = True
-        print("test_login_username_and_appid_donot_math starting %s""succeeded" if succeeded else "failed")
-        assert succeeded == True
-
 
 
 
@@ -2006,9 +1958,9 @@ class Test(unittest.TestCase):
         #订阅topic层级为9层
         try:
             connect = aclient.connect(host=host,port=port,cleansession=True)
-            print(topics[-2])
+            print(topics[6])
             print("user sub")
-            aclient.subscribe([topics[-2]],[2])
+            aclient.subscribe([topics[6]],[2])
             print("assert result")
             print(len(callback.subscribeds))
             assert callback.subscribeds[1] == 0
@@ -2020,9 +1972,9 @@ class Test(unittest.TestCase):
         succeeded = True
         try:
             connect = bclient.connect(host=host,port=port,cleansession=True)
-            print(topics[-2])
+            print(topics[6])
             print("user pub")
-            bclient.publish(topics[-2],b'abc',2,retained=False)
+            bclient.publish(topics[6],b'abc',2,retained=False)
             print("user pub succeeded")
             time.sleep(1)
             bclient.disconnect()
@@ -2042,14 +1994,14 @@ class Test(unittest.TestCase):
         message = b"test"
         #订阅和发布topic层级为8层
         try:
-            callbackresult = topictest(self,sub_index=-1,pub_index=-1,message=message)
-            print(topics[-1])
-            print(wildtopics[-1])
+            callbackresult = topictest(self,sub_index=7,pub_index=9,message=message)
+            print(topics[7])
+            print(wildtopics[9])
             self.assertEqual(len(callbackresult), 2,"callbackresult is %s"%(callbackresult))
             self.assertEqual(callbackresult[0][1],message)
             self.assertEqual(callbackresult[1][1],message)
-            self.assertEqual(callbackresult[0][0],topics[-1])
-            self.assertEqual(callbackresult[1][0],wildtopics[-1])
+            self.assertEqual(callbackresult[0][0],topics[7])
+            self.assertEqual(callbackresult[1][0],wildtopics[9])
         except:
             traceback.print_exc()
             succeeded = False
@@ -2152,9 +2104,9 @@ class Test(unittest.TestCase):
         message = b"The testing sub and pub topic levels are different"
         try:
             print("======")
-            print(topics[2],wildtopics[-1])
+            print(topics[2],wildtopics[9])
             print("!!!!!!")
-            result = topictest(self,sub_index=-1, pub_index=2, message=message)
+            result = topictest(self,sub_index=9, pub_index=2, message=message)
             print(len(result))
             assert len(result) == 0
         except:
