@@ -116,8 +116,9 @@ class Client:
         self.sock.close()
       except:
         pass
+      socket.setdefaulttimeout(5)
       self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      self.sock.settimeout(.5)
+      self.sock.settimeout(5)
       self.sock.connect((host, port))
 
     connect = MQTTV5.Connects()
