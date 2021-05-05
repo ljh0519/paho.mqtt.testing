@@ -271,7 +271,7 @@ class VBIs:  # Variable Byte Integer
 
 def getPacket(aSocket):
   "receive the next packet"
-  aSocket.settimeout(.3)
+  aSocket.settimeout(5)
   buf = aSocket.recv(1) # get the first byte fixed header
   if len(buf) == 0:
     return None
@@ -1336,7 +1336,7 @@ class UnsubSubacks(Packets):
         reasonCode = ReasonCodes(self.packetType, "Success")
       reasonCode.unpack(buffer[-leftlen:])
       print("reasonCode.value is %s"%reasonCode.value)
-      assert reasonCode.value in [0, 1, 2, 0x80], "[MQTT5-3.9.3-2] return code in QoS must be 0, 1, 2 or 0x80"
+      assert reasonCode.value in [0, 1, 2, 0x80, 0x83, 0x87, 0x8F, 0x91, 0x97, 0x9E, 0xA1, 0xA2], "[MQTT5-3.9.3-2] return code in QoS must be 0, 1, 2 or 0x80"
       leftlen -= 1
       self.reasonCodes.append(reasonCode)
     assert leftlen == 0
