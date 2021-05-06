@@ -957,9 +957,9 @@ class Test(unittest.TestCase):
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
       print("pub is %s %s %s"%(topics[1],topics[2],topics[3]))
-      aclient.publish(topics[1], b"qos 0", 0, retained=True)
-      aclient.publish(topics[2], b"qos 1", 1, retained=True)
-      aclient.publish(topics[3], b"qos 2", 2, retained=True)
+      aclient.publish(topics[1], b"qos 00", 0, retained=True)
+      aclient.publish(topics[2], b"qos 10", 1, retained=True)
+      aclient.publish(topics[3], b"qos 20", 2, retained=True)
       time.sleep(1)
       print("sub is %s"%wildtopics[5])
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
@@ -969,12 +969,13 @@ class Test(unittest.TestCase):
       self.assertEqual(len(callback.messages), 3)
       qoss = [callback.messages[i][2] for i in range(3)]
       self.assertTrue(1 in qoss and 2 in qoss and 0 in qoss, qoss)
-      callback.clear()
+      callback.clear()      
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
       # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
       time.sleep(1)
       self.assertEqual(len(callback.messages), 0)
       aclient.disconnect()
+
 
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
@@ -987,6 +988,7 @@ class Test(unittest.TestCase):
       time.sleep(1)
       self.assertEqual(len(callback.messages), 0)
       aclient.disconnect()
+
 
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
@@ -1078,8 +1080,9 @@ class Test(unittest.TestCase):
     def test_subscribe_retainHandling_one(self):
       # retainHandling
       callback.clear()
+      time.sleep(1)
       aclient.connect(host=host, port=port, cleanstart=True)
-      aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
+      aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
       # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
       # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
@@ -1091,6 +1094,7 @@ class Test(unittest.TestCase):
       print("sub is %s"%wildtopics[5])
       
       time.sleep(1)
+      print("callback.message is %s"%callback.messages)
       self.assertEqual(len(callback.messages), 3)
       qoss = [callback.messages[i][2] for i in range(2)]  #qos质量取最小值
       self.assertTrue(1 in qoss and  0 in qoss, qoss)
@@ -1098,7 +1102,7 @@ class Test(unittest.TestCase):
       # aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
       # time.sleep(1)
       # self.assertEqual(len(callback.messages), 0)
-      # aclient.disconnect()
+      aclient.disconnect()
 
 
     def test_subscribe_retainHandling_two(self):
@@ -1257,6 +1261,8 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded,True)
 
     def test_topic_qos_revise_1(self):
+        connack = aclient.connect(host=host,port=port,cleanstart=True)
+        connack = bclient.connect(host=host,port=port,cleanstart=True)
         succeeded = True
         try:
             print(wildtopics[0])
@@ -1276,6 +1282,9 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded,True)
 
     def test_topic_qos_revise_2(self):
+
+        connack = aclient.connect(host=host,port=port,cleanstart=True)
+        connack = bclient.connect(host=host,port=port,cleanstart=True)
         succeeded = True
         try:
             print(wildtopics[0])
@@ -1703,6 +1712,7 @@ class Test(unittest.TestCase):
         # should get back a disconnect with packet size too big
         self.waitfor(callback.disconnects, 1, 2)
         self.assertEqual(len(callback.disconnects), 1, callback.disconnects)
+        print(callback.disconnects[0]["reasonCode"])
         self.assertEqual(str(callback.disconnects[0]["reasonCode"]),
           "Packet too large", str(callback.disconnects[0]["reasonCode"]))
       else:
