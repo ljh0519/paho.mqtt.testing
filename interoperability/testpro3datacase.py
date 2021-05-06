@@ -21,7 +21,6 @@ import random
 
 import mqtt.clients.V311 as mqtt_client, time, logging, socket, sys, getopt, traceback
 
-
 class Callbacks(mqtt_client.Callback):
 
   def __init__(self):
@@ -246,31 +245,35 @@ def build_user(self,number):
 
 class Test(unittest.TestCase):
     global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid,\
-        length_clientid,length_topic,length64_fold
+        length_clientid,length_topic,length64_fold,clientid3,password3,username3
     authentication = False
 
     # 1.测试地址沙箱环境
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
+    # username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
+    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    # password3 = b"$t$YWMthVu47Ki2Eeu2NCVIo1LZv_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5HGBNrgBPGgCNi1NOhAjzH8EddXwove26U0vPAXM7ETR7DmOdCLvRwA"
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+    # clientid3 = "mqtttest3@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
 
 
     #本地
-    # host = "172.17.1.160"
-    # port = 1883
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    # # clientid1 = "ckjaakjncalnla@1RK24W"
-    # # clientid2 = "ckjaakjncalnla1@1RK24W"
-    # clientid1 = "mqtttest1@1wyp94"
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    host = "172.17.1.160"
+    port = 1883
+    username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
+    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
+    password3 = b"$t$YWMthVu47Ki2Eeu2NCVIo1LZv_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5HGBNrgBPGgCNi1NOhAjzH8EddXwove26U0vPAXM7ETR7DmOdCLvRwA"
+    # clientid1 = "ckjaakjncalnla@1RK24W"
+    # clientid2 = "ckjaakjncalnla1@1RK24W"
+    clientid1 = "mqtttest1@1wyp94"
+    clientid2 = "mqtttest2@1wyp94"
+    clientid3 = "mqtttest3@1wyp94"
+    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -306,86 +309,311 @@ class Test(unittest.TestCase):
       bclient.registerCallback(callback2)
       bclient.setUserName(username2, password2)
 
-      cclient = mqtt_client.Client(clientid1.encode("utf-8"))
+      cclient = mqtt_client.Client(clientid3.encode("utf-8"))
       cclient.registerCallback(callback3)
-      cclient.setUserName(username1, password1)
+      cclient.setUserName(username3, password3)
 
 
     
-    # def setUp(self):
-    #     callback.clear()
-    #     callback2.clear()
+    def setUp(self):
+        callback.clear()
+        callback2.clear()
     
-    # def tearDown(self):
-    #     cleanup()
-
-
-
-
+    def tearDown(self):
+        cleanup()
 
 
     """
-      1.测试登陆成功后，只pub
+      1.测试多个连接
     """
-    def test_only_pub(self):
-        print(topics,len(topics),len(wildtopics))
-        connack = aclient.connect(host=host,port=port,cleansession=True)
-        connack = bclient.connect(host=host,port=port,cleansession=True)
-        succeeded = True
+    def test_duoge_connect(self):
         print("Basic test starting")
         succeeded = True
-        number = 8
-        try:
-            for i in range(number):
-                print("i is %d"%i)
-                aclient.publish(topics[i],b"22",0)
-                aclient.publish(topics[i],b"bc",1)
-                aclient.publish(topics[i],b"ab",2)
-                time.sleep(.1)
-            time.sleep(10)
-        except:
-            succeeded = False
-        self.assertEqual(succeeded, True)
-        return succeeded
-
-    """
-      1.测试sub、pub、上行消息、下行消息、消息总数
-    """
-    def test_sub_pub_message(self):
-        print(topics,len(topics),len(wildtopics))
-        connack = aclient.connect(host=host,port=port,cleansession=True)
-        connack = bclient.connect(host=host,port=port,cleansession=True)
-        #   connack = bclient.connect(host=host,port=port,cleansession=False)
-        print(" login end")
-        succeeded = True
-        print("Basic test starting")
         number = 10
         try:
-            for i in range(len(topics)):
-                    print("sub %d"%(i))
-                    aclient.subscribe([topics[i]], [2])
-                    bclient.subscribe([topics[i]], [2])
-                    time.sleep(1)
-            for num in range(number):
-                print("num = %d"%num)
-                for i in range(len(topics)):
-                    print("send message %d"%(i))
-                    aclient.publish(topics[i], b"123", 0)
-                    aclient.publish(topics[i], b"aa", 1)
-                    aclient.publish(topics[i], b"b", 2)
-                    time.sleep(1)   #由于发送消息太快，导致服务端未消费，部分消息会丢失,所以发送消息后等待时间设置1s
-            print("send end")
+            for i in range(number):
+              clientid1 = "deviceid%s"%(i) + "@" + "1wyp94"
+              print(clientid1)
+              print("aclient is %s"%aclient)
+              ac = mqtt_client.Client(clientid1.encode("utf-8"))
+              callback = "callback%s"%(i)
+              print(callback)
+              ac.registerCallback(callback)
+              ac.setUserName(username1, password1)
+              print("succee")
+              ac.connect(host=host, port=port)
+            # build_user(self, number)
+            # print("build end")
+            # for i in range(number):
+            #   ac = "aclient%s"%i
+            #   print(ac)
+            #   ac.connect(host=host, port=port)
+            #   print("connect succeed")
             time.sleep(10)
+            # aclient.disconnect()
         except:
             succeeded = False
-        print(len(callback.messages))
-        print(len(callback.messages))
-        assert len(callback.messages) == number*3*len(topics)
-        assert len(callback2.messages) == number*3*len(topics)
         self.assertEqual(succeeded, True)
         return succeeded
 
+
+
+    """
+      1.测试订阅后取消订阅
+    """
+    def test_subscribe_and_unsubscribe(self):
+        print("Basic test starting")
+        print(topics)
+        number = len(topics)
+        aclient.connect(host=host, port=port)
+        
+        aclient.subscribe([topics[0]], [2])
+        time.sleep(10)
+        aclient.unsubscribe(topics[0])
+        time.sleep(10)
+        succeeded = True
+        # try:
+        #     aclient.connect(host=host, port=port)
+        #     bclient.connect(host=host,port=port,cleansession=True)
+        #     for i in range(number):
+        #       print(i)
+        #       aclient.subscribe([topics[i]], [2])
+        #       bclient.subscribe([topics[i]], [2])
+        #       time.sleep(.1)
+        #     print("sub end")
+        #     time.sleep(10)
+        #     for i in range(number):
+        #       aclient.unsubscribe(topics[i])
+        #       bclient.unsubscribe(topics[i])
+        #     # aclient.disconnect()
+        #     print("unsub end")
+        #     time.sleep(10)
+        # except:
+        #     traceback.print_exc()
+        #     succeeded = False
+        self.assertEqual(succeeded, True)
+        return succeeded
+
+
+
+    """
+      1.测试mqtt只进行tcp连接(session小于连接数)
+    """
+    def test_session_less_than_connect(self):
+        print("Basic test starting")
+        succeeded = True
+        try:
+            aclient = mqtt_client.Client(clientid1.encode("utf-8"))
+            aclient.registerCallback(callback)
+            username1 = "errorusername"
+            aclient.setUserName(username1, password1)
+            aclient.connect(host=host, port=port,cleansession=True)
+            print("connect succeeded")
+        except:
+            # traceback.print_exc()
+            succeeded = False
+        time.sleep(10)
+        self.assertEqual(succeeded, True)
+
+
+
+    """
+      1.测试登陆成功后，订阅topic
+    """
+    def test_login_sub(self):
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=True)
+      connack = bclient.connect(host=host,port=port,cleansession=True)
+      connack = cclient.connect(host=host,port=port,cleansession=True)
+      succeeded = True
+      print("Basic test starting")
+      succeeded = True
+      try:
+        for i in range(len(topics)):
+          print("sub is %d"%i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          cclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+        time.sleep(20)
+      except:
+        succeeded = False
+      self.assertEqual(succeeded, True)
+      return succeeded
+
+
+    """
+      1.测试登陆成功后，订阅topic
+    """
+    def test_login_sub_pub(self):
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=True)
+      connack = bclient.connect(host=host,port=port,cleansession=True)
+      succeeded = True
+      print("Basic test starting")
+      succeeded = True
+      number = len(topics)
+      try:
+        for i in range(number):
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+        time.sleep(10)
+        for i in range(number):
+          aclient.publish(topics[i],b"tset aclient %d qos0"%(i),0)
+          aclient.publish(topics[i],b"tset aclient %d qos1"%(i),1)
+          aclient.publish(topics[i],b"tset aclient %d qos2"%(i),2)
+          time.sleep(.1)
+        time.sleep(10)
+      except:
+        succeeded = False
+      print("Basic test", "succeeded" if succeeded else "failed")
+      self.assertEqual(succeeded, True)
+      return succeeded
+
+    """
+      1.测试登陆成功后，订阅topic
+    """
+    def test_login_sub_unsub(self):
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=True)
+      connack = bclient.connect(host=host,port=port,cleansession=False)
+      succeeded = True
+      time.sleep(10)
+      print("Basic test starting")
+      succeeded = True
+      # number = len(topics)
+      # try:
+        # for i in range(number):
+        #   print("sub is %d"%i)
+        #   aclient.subscribe([topics[i]], [2])
+        #   bclient.subscribe([topics[i]], [2])
+        #   time.sleep(.1)
+        # time.sleep(5)
+      #   for i in range(number):
+      #     print("unsub is %s"%i)
+      #     aclient.unsubscribe([topics[i]])
+      #     bclient.unsubscribe([topics[i]])
+      #     time.sleep(.1)
+      #   time.sleep(5)
+      # except:
+      #   succeeded = False
+      # print("Basic test", "succeeded" if succeeded else "failed")
+      # self.assertEqual(succeeded, True)
+      # return succeeded
+
+
+      """
+      """
+    def test_login_sub_unsub_1(self):
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=True)
+      connack = bclient.connect(host=host,port=port,cleansession=False)
+      succeeded = True
+      print("Basic test starting")
+      succeeded = True
+      number = len(topics)
+      try:
+        for i in range(number):
+          print("sub is %d"%i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+        time.sleep(5)
+        
+        print("重复订阅")
+        for i in range(number):
+          print("sub is %d"%i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+        time.sleep(10)
+
+
+        for i in range(number):
+          print("unsub is %s"%i)
+          aclient.unsubscribe([topics[i]])
+          bclient.unsubscribe([topics[i]])
+          time.sleep(.1)
+        print("重复取消订阅")
+        for i in range(number):
+          print("unsub is %s"%i)
+          aclient.unsubscribe([topics[i]])
+          bclient.unsubscribe([topics[i]])
+          time.sleep(.1)
+        time.sleep(10)
+      except:
+        succeeded = False
+      print("Basic test", "succeeded" if succeeded else "failed")
+      self.assertEqual(succeeded, True)
+      return succeeded
+
+
+    """
+      1.测试session大于连接数
+    """
+    def test_session_than_sub(self):
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=False)
+      connack = bclient.connect(host=host,port=port,cleansession=False)
+      succeeded = True
+      print("Basic test starting")
+      succeeded = True
+      try:
+        for i in range(len(topics)):
+          print(i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+      except:
+        succeeded = False
+
+      print("Basic test", "succeeded" if succeeded else "failed")
+      self.assertEqual(succeeded, True)
+      return succeeded
+
+    """
+      1.测试没有连接数只有session数
+    """
+    def test_noconect_session(self):
+      print("test subnum max starting")
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=False)
+      # aclient.subscribe([topics[0]], [2])
+      connack = bclient.connect(host=host,port=port,cleansession=False)
+      succeeded = True
+      try:
+        for i in range(len(topics)):
+          print(i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+      except:
+        succeeded = False
+      time.sleep(10)
+      self.assertEqual(succeeded,True)
     
+
+    """
+      1.测试session数量等于连接数量
+    """
+    def test_session_equal_connect(self):
+      print("test subnum max starting")
+      print(topics,len(topics),len(wildtopics))
+      connack = aclient.connect(host=host,port=port,cleansession=True)
+      # aclient.subscribe([topics[0]], [2])
+      connack = bclient.connect(host=host,port=port,cleansession=True)
+      succeeded = True
+      try:
+        for i in range(len(topics)):
+          print(i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+      except:
+        succeeded = False
+      time.sleep(10)
+      self.assertEqual(succeeded,True)
 
 
 if __name__ == "__main__":

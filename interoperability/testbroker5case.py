@@ -122,6 +122,31 @@ def cleanRetained():
   time.sleep(.1)
 
 
+def topictest(self,sub_index=None,pub_index=None,message=None):
+    #不同种类的topic测试
+    callback.clear()
+    callback2.clear()
+    #用户B连接
+    bclient.connect(host=host, port=port, cleanstart=True)
+    print(wildtopics[sub_index],topics[pub_index])
+    print("userb sub")
+    bclient.subscribe([wildtopics[sub_index]], [MQTTV5.SubscribeOptions(2)])
+    time.sleep(1) # wait for all retained messages, hopefully
+    print("userb pub")
+    bclient.publish(topics[pub_index], message, 1, retained=False)
+    time.sleep(2)
+    #用户a连接
+    aclient.connect(host=host, port=port, cleanstart=True)
+    print("usera pub")
+    aclient.publish(topics[pub_index], message, 1, retained=False)
+    time.sleep(5)
+    aclient.disconnect()
+    time.sleep(1)
+    bclient.disconnect()
+    print("用户B收到的消息 %s"%callback2.messages)
+    return callback2.messages
+
+
 def qostest(self,sub_qos=None,pub_qos=None,message=None):
   callback.clear()
   callback2.clear()
@@ -239,12 +264,14 @@ class Test(unittest.TestCase):
       # dclient.setUserName(username2, password2)
 
 
-    # def setUp(self):
-    #   callback.clear()
-    #   callback2.clear()
+    def setUp(self):
+      callback.clear()
+      callback2.clear()
 
-    # def tearDown(self):
-    #     cleanup()
+    def tearDown(self):
+        cleanup()
+
+
 
 
     def test_basic(self):
@@ -375,7 +402,7 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = True
-        print("test_login_username_and_paw_donot_math starting %s""succeeded" if succeeded else "failed")
+        print("test_login_username_and_paw_donot_math starting ""succeeded" if succeeded else "failed")
         assert succeeded == True
 
 
@@ -1203,6 +1230,69 @@ class Test(unittest.TestCase):
         succeeded = True
       print("The clientid must exist and not be empty")
       assert succeeded == True
+
+
+    """
+        测试修改已订阅topic中的qos质量
+    """
+    def test_topic_qos_revise_0(self):
+        connack = aclient.connect(host=host,port=port,cleanstart=True)
+        connack = bclient.connect(host=host,port=port,cleanstart=True)
+        succeeded = True
+        try:
+            print(wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(0)])
+            time.sleep(1)
+            print("修改已订阅topic的qos")
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(1)])
+            print("publish messages")
+            time.sleep(1)
+            bclient.publish(topics[1], b"qos =1",2,retained=False)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            assert callback.messages[0][2] == 1
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
+
+    def test_topic_qos_revise_1(self):
+        succeeded = True
+        try:
+            print(wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(1)])
+            time.sleep(1)
+            print("修改已订阅topic的qos")
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(2)])
+            print("publish messages")
+            time.sleep(1)
+            bclient.publish(topics[1], b"qos =1",2,retained=False)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            assert callback.messages[0][2] == 2
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
+
+    def test_topic_qos_revise_2(self):
+        succeeded = True
+        try:
+            print(wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(0)])
+            time.sleep(1)
+            print("修改已订阅topic的qos")
+            aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(2)])
+            print("publish messages")
+            time.sleep(1)
+            bclient.publish(topics[1], b"qos =1",2,retained=False)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            assert callback.messages[0][2] == 2
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
 
 
     """
@@ -2111,7 +2201,7 @@ class Test(unittest.TestCase):
         # callback4.clear(self)
         # try:
         #     connectA = aclient.connect(host=host,port=port,cleanstart=True)
-        #     connectB = dclient.connect(host=host,port=port,cleansession=True)
+        #     connectB = dclient.connect(host=host,port=port,cleanstart=True)
         #     print("用户A订阅的topic：%s"%wildtopics[0])
         #     aclient.subscribe([wildtopics[0]],[MQTTV5.SubscribeOptions(1)])
         #     print("用户B发布消息topic：%s"%topics[1])
@@ -2140,7 +2230,7 @@ class Test(unittest.TestCase):
         # print(" Start：测试场景二:v5.x订阅topic，v3.x发布消息")
         # try:
         #     connectA = aclient.connect(host=host,port=port,cleanstart=True)
-        #     connectB = dclient.connect(host=host,port=port,cleansession=True)
+        #     connectB = dclient.connect(host=host,port=port,cleanstart=True)
         #     print("用户B订阅的topic：%s"%wildtopics[0])
         #     dclient.subscribe([wildtopics[0]],[1])
         #     print("用户A发布消息topic：%s"%topics[1])
@@ -2165,34 +2255,243 @@ class Test(unittest.TestCase):
 
 
 
+    """
+        1.验证通配符#，sub：TopicA/#,pub:TopicA/B
+    """
+    def test_topic_format_first(self):
+        print("topic/# topics test starting")
+        succeeded = True
+        message=b"test topic/#"
+        callbackresult = []
+        try:
+            callbackresult = topictest(self,sub_index=6,pub_index=1, message=message)
+            assert len(callbackresult) == 2
+            self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        try:
+            callbackresult = topictest(self,sub_index=6,pub_index=5, message=message)
+            assert len(callbackresult) == 2
+            self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print(callbackresult)
+        print("topic/# topics test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
+
+
+
+    """
+        1.验证topic通配符+,sub:"TopicA/+",pub:"TopicA/B"
+    """
+    def test_topic_format_second(self):
+        print("topics:topics/+ test starting")
+        succeeded = True
+        message=b"test topic:topic/#"
+        callbackresult = []
+        try:
+            callbackresult = topictest(self,sub_index=0,pub_index=1,message=message)
+            assert len(callbackresult) == 2,"callback length is %s"%(len(callback))
+            self.assertEqual(callbackresult[0][1], message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        try:
+            callbackresult = topictest(self,sub_index=0,pub_index=5,message=message)
+#             self.assertEqual(callback[0][1], message,callback[0][1])
+            assert len(callbackresult) == 0,print("层级不同无法接收到消息"+callbackresult)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print(callbackresult)
+        print("topics:topics/+ test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
+    #验证topic通配符
+    def test_topic_format_third(self):
+        print("topics format +/# test starting")
+        succeeded = True
+        message=b"test topic:+/#"
+        callbackresult = []
+        try:
+            callbackresult = topictest(self,sub_index=0,pub_index=1,message=message)
+            assert len(callbackresult) == 2,"callback length is %s"%(len(callback))
+            self.assertEqual(callbackresult[0][1], message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        try:
+            callbackresult = topictest(self,sub_index=0,pub_index=5,message=message)
+            #self.assertEqual(callback[0][1], message,callback[0][1])
+            assert len(callbackresult) == 0,print("层级不同无法接收到消息"+callbackresult)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print(callbackresult)
+        print("topics format +/# test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+
+    #验证topic通配符格式为+/#
+    #@unittest.skip("由于目前使用EMQ的客户端测试，pub消息太多，导致卡死。目前不测试，需要修改case")
+    def test_topic_format_hourth(self):
+        print("topics format +/# test starting")
+        succeeded = True
+        message=b"test topic:+/#"
+        callbackresult = []
+        try:
+            callbackresult = topictest(self,sub_index=7,pub_index=1,message=message)
+            print(wildtopics[7],topics[1])
+            self.assertEqual(len(callbackresult), 2,"callbackresult is %s"%(callbackresult))
+            self.assertEqual(callbackresult[0][1],message)
+            self.assertEqual(callbackresult[1][1],message)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        assert succeeded ==True
+        succeeded =True
+        try:
+            callbackresult = topictest(self,sub_index=7,pub_index=5,message=message)
+            print(wildtopics[7],topics[5])
+            self.assertEqual(len(callbackresult), 2,"callbackresult is $s"%(callbackresult))
+            self.assertEqual(callbackresult[0][1],message)
+            self.assertEqual(callbackresult[1][1],message)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print("callback2.messages is %s"%callback2.messages)
+        print("topics format +/#  test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
+    
+    #验证topic格式为+/+匹配规则
+    def test_topic_format_fifth(self):
+        print("test topic:+/+ starting")
+        succeeded = True
+        try:
+            callback.clear()
+            connack = aclient.connect(host=host, port=port, cleanstart=True)
+            print(wildtopics[5])
+            aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
+            connack = bclient.connect(host=host, port=port, cleanstart=True)
+            # #assert connack.flags == 0x00 # Session present
+            print(topics[1],topics[2],topics[3])
+            bclient.publish(topics[1], b"qos 0", 0)
+            bclient.publish(topics[2], b"qos 1", 1)
+            bclient.publish(topics[3], b"qos 2", 2)
+            time.sleep(2)
+            print(callback.messages)
+            assert len(callback.messages) == 3
+            self.assertEqual(callback.messages[0][1],b"qos 0")
+            self.assertEqual(callback.messages[1][1],b"qos 1")
+            self.assertEqual(callback.messages[2][1],b"qos 2")
+            
+            time.sleep(2)
+            aclient.disconnect()
+            bclient.disconnect()
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print("test topic:+/+ ", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
+    #验证topic层级为9层（目前只限制最大字符，未限制层数）
+    def test_topic_format_sixth(self):
+        print("topics format topicA/B/C/D/E/F/G/H/I test starting")
+        succeeded = True
+        #订阅topic层级为9层
+        try:
+            connect = aclient.connect(host=host,port=port,cleanstart=True)
+            print(topics[6])
+            print("user sub")
+            aclient.subscribe([topics[6]],[2])
+            print("assert result")
+            print(len(callback.subscribeds))
+            assert callback.subscribeds[1] == 0
+            aclient.disconnect()
+        except:
+            succeeded =  False
+        #发布消息topic层级为9层
+        print("user pub")
+        succeeded = True
+        try:
+            connect = bclient.connect(host=host,port=port,cleanstart=True)
+            print(topics[6])
+            print("user pub")
+            bclient.publish(topics[6],b'abc',2,retained=False)
+            print("user pub succeeded")
+            time.sleep(1)
+            bclient.disconnect()
+            print("user disconnect")
+        except:
+            succeeded =  False
+        print("topics format topicA/B/C/D/E/F/G/H/I  test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+    
+    
+    
+    #验证topic层级为8层
+    def test_topic_format_seventh(self):
+        print("topics format topic/a/b/c/d/e/f/g test starting")
+        succeeded = True
+        message = b"test"
+        #订阅和发布topic层级为8层
+        try:
+            callbackresult = topictest(self,sub_index=9,pub_index=7,message=message)
+            self.assertEqual(len(callbackresult), 2,"callbackresult is %s"%(callbackresult))
+            self.assertEqual(callbackresult[0][1],message)
+            self.assertEqual(callbackresult[1][1],message)
+            self.assertEqual(callbackresult[0][0],topics[7])
+            self.assertEqual(callbackresult[1][0],wildtopics[9])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print("topics format topic/a/b/c/d/e/f/g  test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+
 
 
 
 def setData():
   global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,username1,username2,username3,appid,server
   #沙箱地址
-  # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-  # port = 2883 #发送端口
+  host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+  port = 2883 #发送端口
 
   #EMQ地址
   # host = "broker.emqx.io"
   # port = 1883
 
-  # 本地地址
-  host = "172.17.1.160"
-  port = 1883
+  # # 本地地址
+  # host = "172.17.1.160"
+  # port = 1883
   # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA")
   # wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#")
   # nosubscribe_topics = ("test/nosubscribe",)
+
+
   clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
   clientid2 = "mqtttest2@1wyp94"
   clientid3 = "mqtttest3@1wyp94"
   appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
   server = 5.0
   username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-  password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMtMubpQqlgEeuaW6tYyyxzoPLBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5ILhN-ABPGgDWCb_idFTCLnpUCbJR5HBtZKS3skxat7x9mZUvY6hX_w"
+  password1 = b"$t$YWMtmkljBq41Eeu39Qv1-LC0RfLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QGXBIQBPGgDJJHzH_o8JNe8OnCH7DOZHrKQU05cDi1qZLKDIhcWn9w"  #用户密码，实际为与用户匹配的token
+  password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
+  password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
   topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
   wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
   nosubscribe_topics = ("test/nosubscribe",)

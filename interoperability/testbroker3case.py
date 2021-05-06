@@ -225,26 +225,26 @@ class Test(unittest.TestCase):
         length_clientid,length_topic,length64_fold
     authentication = False
 
-    # 1.使用沙箱环境测试
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+    # # 1.使用沙箱环境测试
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    s = 2883 #发送端口
+    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "mqtttest2@1wyp94"
+    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
     #2.使用本地环境测试
-    host = "172.17.1.160"
-    port = 1883
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    clientid1 = "ckjaakjncalnla@1wyp94"
-    clientid2 = "ckjaakjncalnla1@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+    # host = "172.17.1.160"
+    # port = 1883
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
+    # clientid1 = "ckjaakjncalnla@1wyp94"
+    # clientid2 = "ckjaakjncalnla1@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -290,6 +290,11 @@ class Test(unittest.TestCase):
     def tearDown(self):
         cleanup()
 
+
+
+
+
+
     """
         1.基础测试
     """
@@ -299,6 +304,8 @@ class Test(unittest.TestCase):
         try:
             aclient.connect(host=host, port=port)
             aclient.disconnect()
+            time.sleep(3)
+            # aclient.terminate()
 
             connack = aclient.connect(host=host, port=port)
             # #assert connack.flags == 0x00 # Session present
@@ -306,8 +313,10 @@ class Test(unittest.TestCase):
             aclient.publish(topics[0], b"qos 0")
             aclient.publish(topics[0], b"qos 1", 1)
             aclient.publish(topics[0], b"qos 2", 2)
-            time.sleep(2)
+            time.sleep(5)
+
             aclient.disconnect()
+            # aclient.terminate()
             print(callback.messages)
             self.assertEqual(len(callback.messages), 3)
         except:
@@ -342,6 +351,29 @@ class Test(unittest.TestCase):
         time.sleep(5)
         self.assertEqual(succeeded,True)
 
+    """
+        测试修改已订阅topic中的qos质量
+    """
+    def test_topic_qos_revise(self):
+        connack = aclient.connect(host=host,port=port,cleansession=True)
+        connack = bclient.connect(host=host,port=port,cleansession=True)
+        succeeded = True
+        try:
+            print(wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[0])
+            time.sleep(1)
+            print("修改已订阅topic的qos")
+            aclient.subscribe([wildtopics[0]],[1])
+            print("publish messages")
+            time.sleep(1)
+            bclient.publish(topics[1], b"qos =1",2,retained=False)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            assert callback.messages[0][2] == 1
+        except:
+            succeeded = False
+        self.assertEqual(succeeded,True)
 
     """
         1.测试连续订阅取消订阅（可以验证console中最大订阅topic）
@@ -539,9 +571,9 @@ class Test(unittest.TestCase):
       global aclient
       succeeded = True
       try:
-        callback.clear()
-        callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=True)
+        # callback.clear()
+        # callback2.clear()
+        connack = aclient.connect(host=host, port=port,cleansession=False)
         aclient.subscribe([topics[1]], [2])
         time.sleep(1)
         print("aclient.subscribeds = ", callback.subscribeds)
@@ -1307,7 +1339,7 @@ class Test(unittest.TestCase):
         print("password = ",password1)
         succeeded = clientidtest(self,clientid,username1,password1)
         self.assertEqual(succeeded, False)
-        print("error cliendid format  test %s"%("succeeded") if succeeded else "is not")
+        print("error cliendid format  test ""succeeded" if succeeded else "is not")
 
 
 
