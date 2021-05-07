@@ -2663,7 +2663,8 @@ class Test(unittest.TestCase):
         return succeeded
 
 def setData():
-  global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,username1,username2,username3,appid,server,invalidtopic
+  global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,username1,username2,username3,appid,server,invalidtopic,topic_prefix,\
+    error_cliendid,length_topic,length64_fold,length_clientid
   #沙箱地址
   host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
   port = 2883 #发送端口
@@ -2687,6 +2688,7 @@ def setData():
   password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
   topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/")
   invalidtopic = ("TopicA/B#","TopicA/#/C") #无效的topic
+  topic_prefix = "client_test5/"
   wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","+/B/#","TopicA/+/C") #订阅使用的topic
   nosubscribe_topics = ("test/nosubscribe",)  #已subscribe结尾的topic
   length_topic = "1234567890123456789012345678901234567890123456789012345678901234" #topic层级为1层，总长度为64位的topic
@@ -2711,13 +2713,6 @@ if __name__ == "__main__":
     sys.exit(2)
 
   iterations = 1
-
-  global topics, wildtopics, nosubscribe_topics, host, topic_prefix
-  topic_prefix = "client_test5/"
-  topics = [topic_prefix+topic for topic in ["TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA"]]
-  wildtopics = [topic_prefix+topic for topic in ["TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#"]]
-  print(wildtopics)
-  nosubscribe_topics = ("test/nosubscribe",)
   for o, a in opts:
     if o in ("--help"):
       usage()
