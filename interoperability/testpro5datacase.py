@@ -25,46 +25,6 @@ import mqtt.formats.MQTTV5 as MQTTV5
 
 class Callbacks(mqtt_client.Callback):
 
-  # global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid,\
-  #   length_clientid,length_topic,length64_fold
-  # # authentication = False
-
-
-  # # # 1.测试地址沙箱环境
-  # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-  # port = 2883 #发送端口
-  # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-  # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-  # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-  # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-  # clientid2 = "mqtttest2@1wyp94"
-  # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
-
-
-  #本地
-  # host = "172.17.1.160"
-  # port = 1883
-  # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-  # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-  # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-  # clientid1 = "ckjaakjncalnla@1RK24W"
-  # clientid2 = "ckjaakjncalnla1@1RK24W"
-  # appid = {"right_appid":"1RK24W","error_appid":"","noappid":"123"} #构建appid
-
-
-  # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
-  # wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
-  # nosubscribe_topics = ("test/nosubscribe",)
-  # length_topic = "1234567890123456789012345678901234567890123456789012345678901234"
-  # length64_fold = "a/b/c/d/e/f/g/f/h/i/gk/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/1/2/3/4/5/6"
-
-  # length_clientid = "123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]
-  # deviceid = {"right_deviceid":"testdeviceid1","error_deviceid":""}    #构建deviceid
-  # error_cliendid = {"error_format_one":deviceid["right_deviceid"] + "#" + appid["right_appid"],\
-  #   "no_appid":deviceid["right_deviceid"],\
-  #   "error_format_two":deviceid["right_deviceid"]  + appid["right_appid"],\
-  #   "no_key":deviceid["right_deviceid"] + "@" + appid["noappid"],\
-  #   "overlength_clientid":"123456789012345678901234567890123456789012345678901234567@1RK24W123456789012345678901234567890123456789012345678901234567@" + appid["right_appid"]}
 
   def __init__(self):
     self.messages = []
@@ -448,28 +408,27 @@ class Test(unittest.TestCase):
 def setData():
   global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,password3,username1,username2,username3,appid,server
   #沙箱地址
-  # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-  # port = 2883 #发送端口
+  host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+  port = 2883 #发送端口
 
   #EMQ地址
   # host = "broker.emqx.io"
   # port = 1883
 
   # 本地地址
-  host = "172.17.1.160"
-  port = 1883
-  # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA")
-  # wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#")
-  # nosubscribe_topics = ("test/nosubscribe",)
+  # host = "172.17.1.160"
+  # port = 1883
+
+
   clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
   clientid2 = "mqtttest2@1wyp94"
   clientid3 = "mqtttest3@1wyp94"
   appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
   server = 5.0
   username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-  password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-  password3 = b"$t$YWMtMubpQqlgEeuaW6tYyyxzoPLBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5ILhN-ABPGgDWCb_idFTCLnpUCbJR5HBtZKS3skxat7x9mZUvY6hX_w"
+  password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
+  password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
+  password3 = b"$t$YWMtjxTqjK5TEeuyPom2A3QN6_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5QSoTWABPGgB1pJEEJfes47tHrJQEUPRJyqaoOhx4jlzCzoz_mLuKlw"
   topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
   wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
   nosubscribe_topics = ("test/nosubscribe",)

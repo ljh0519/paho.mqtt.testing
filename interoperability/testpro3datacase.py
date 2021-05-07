@@ -248,33 +248,22 @@ class Test(unittest.TestCase):
         length_clientid,length_topic,length64_fold,clientid3,password3,username3
     authentication = False
 
-    # 1.测试地址沙箱环境
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-    # username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # password3 = b"$t$YWMthVu47Ki2Eeu2NCVIo1LZv_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5HGBNrgBPGgCNi1NOhAjzH8EddXwove26U0vPAXM7ETR7DmOdCLvRwA"
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # clientid3 = "mqtttest3@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
-
-
     #本地
-    host = "172.17.1.160"
-    port = 1883
+    # host = "172.17.1.160"
+    # port = 1883
+
+    # 1.测试地址沙箱环境
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
     username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    password3 = b"$t$YWMthVu47Ki2Eeu2NCVIo1LZv_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5HGBNrgBPGgCNi1NOhAjzH8EddXwove26U0vPAXM7ETR7DmOdCLvRwA"
-    # clientid1 = "ckjaakjncalnla@1RK24W"
-    # clientid2 = "ckjaakjncalnla1@1RK24W"
-    clientid1 = "mqtttest1@1wyp94"
+    password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
+    password3 = b"$t$YWMtjxTqjK5TEeuyPom2A3QN6_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5QSoTWABPGgB1pJEEJfes47tHrJQEUPRJyqaoOhx4jlzCzoz_mLuKlw"
+    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
     clientid2 = "mqtttest2@1wyp94"
     clientid3 = "mqtttest3@1wyp94"
     appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
-    
+
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
     wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -435,7 +424,7 @@ class Test(unittest.TestCase):
           bclient.subscribe([topics[i]], [2])
           cclient.subscribe([topics[i]], [2])
           time.sleep(.1)
-        time.sleep(20)
+        time.sleep(1000)
       except:
         succeeded = False
       self.assertEqual(succeeded, True)
@@ -482,25 +471,25 @@ class Test(unittest.TestCase):
       time.sleep(10)
       print("Basic test starting")
       succeeded = True
-      # number = len(topics)
-      # try:
-        # for i in range(number):
-        #   print("sub is %d"%i)
-        #   aclient.subscribe([topics[i]], [2])
-        #   bclient.subscribe([topics[i]], [2])
-        #   time.sleep(.1)
-        # time.sleep(5)
-      #   for i in range(number):
-      #     print("unsub is %s"%i)
-      #     aclient.unsubscribe([topics[i]])
-      #     bclient.unsubscribe([topics[i]])
-      #     time.sleep(.1)
-      #   time.sleep(5)
-      # except:
-      #   succeeded = False
-      # print("Basic test", "succeeded" if succeeded else "failed")
-      # self.assertEqual(succeeded, True)
-      # return succeeded
+      number = len(topics)
+      try:
+        for i in range(number):
+          print("sub is %d"%i)
+          aclient.subscribe([topics[i]], [2])
+          bclient.subscribe([topics[i]], [2])
+          time.sleep(.1)
+        time.sleep(10)
+        for i in range(number):
+          print("unsub is %s"%i)
+          aclient.unsubscribe([topics[i]])
+          bclient.unsubscribe([topics[i]])
+          time.sleep(.1)
+        time.sleep(10)
+      except:
+        succeeded = False
+      print("Basic test", "succeeded" if succeeded else "failed")
+      self.assertEqual(succeeded, True)
+      return succeeded
 
 
       """

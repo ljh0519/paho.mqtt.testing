@@ -250,22 +250,16 @@ class Test(unittest.TestCase):
     authentication = False
 
     # 1.测试地址沙箱环境
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
 
 
     #本地
-    host = "172.17.1.160"
-    port = 1883
+    # host = "172.17.1.160"
+    # port = 1883
     username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
+    password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
     # clientid1 = "ckjaakjncalnla@1RK24W"
     # clientid2 = "ckjaakjncalnla1@1RK24W"
     clientid1 = "mqtttest1@1wyp94"
@@ -342,7 +336,7 @@ class Test(unittest.TestCase):
                 aclient.publish(topics[i],b"bc",1)
                 aclient.publish(topics[i],b"ab",2)
                 time.sleep(.1)
-            time.sleep(10)
+            time.sleep(1000)
         except:
             succeeded = False
         self.assertEqual(succeeded, True)

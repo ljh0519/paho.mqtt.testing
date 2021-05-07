@@ -222,12 +222,17 @@ def generate_random_str(randomlength=None):
 
 class Test(unittest.TestCase):
     global host, port, topics, wildtopics, nosubscribe_topics, clientid1, clientid2, authentication, username1,username2,usernames, password1,password2,error_cliendid,\
-        length_clientid,length_topic,length64_fold
+        length_clientid,length_topic,length64_fold,invalidtopic
     authentication = False
 
     # # 1.使用沙箱环境测试
     host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    s = 2883 #发送端口
+    port = 2883 #发送端口
+
+    #2.使用本地环境测试
+    # host = "172.17.1.160"
+    # port = 1883
+
     username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
     password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
     password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
@@ -236,19 +241,10 @@ class Test(unittest.TestCase):
     appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
-    #2.使用本地环境测试
-    # host = "172.17.1.160"
-    # port = 1883
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMthT_bXKZ5Eeuek9H9tYvkYPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5DbUWfgBPGgB0jT5heMPzU_TtZJqSmmESmC6PzksQSNOyZuEscqu2cg"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMti47_9qZ5EeutzZVjt1Y3N_LBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5DbU_1wBPGgAFHk3GBqhgusAPC74z-xslVDS9HSvCYYZfL0y6ZkIAdQ"
-    # clientid1 = "ckjaakjncalnla@1wyp94"
-    # clientid2 = "ckjaakjncalnla1@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
-    
 
-    topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
-    wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
+    topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/",)
+    invalidtopic = ("TopicA/B#","TopicA/#/C","TopicA+")
+    wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","+/B/#","TopicA/+/C")
     nosubscribe_topics = ("test/nosubscribe",)
     length_topic = "1234567890123456789012345678901234567890123456789012345678901234"
     length64_fold = "a/b/c/d/e/f/g/f/h/i/gk/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/1/2/3/4/5/6"
@@ -1718,6 +1714,7 @@ class Test(unittest.TestCase):
             aclient.connect(host=host, port=port)
             #注释wildtopics[6]=="TopicA/#",wildtopics[0]="TopicA/+"
             print(wildtopics[6], wildtopics[0])
+
             aclient.subscribe([wildtopics[6], wildtopics[0]], [2, 1])
             #注释topics[3]="TopicA/C"
             aclient.publish(topics[3], b"overlapping topic filters", 2)
@@ -1756,7 +1753,7 @@ class Test(unittest.TestCase):
         aclient.connect(host=host, port=port, cleansession=True, keepalive=5, willFlag=True,
               willTopic=topics[4], willMessage=b'keepalive_expiry')
         bclient.connect(host=host, port=port, cleansession=True, keepalive=0)
-        #注释topics[4]=TopicA/C
+        #注释topics[4]=/TopicA
         bclient.subscribe([topics[4]], [2])
         time.sleep(15)
         bclient.disconnect()
@@ -1852,8 +1849,20 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+        assert succeeded == True
+        succeeded = True
         try:
             callbackresult = topictest(self,sub_index=6,pub_index=5, message=message)
+            assert len(callbackresult) == 2
+            self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
+            self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
+        except:
+            traceback.print_exc()
+            succeeded = False
+        assert succeeded == True
+        succeeded = True
+        try:
+            callbackresult = topictest(self,sub_index=6,pub_index=0, message=message)
             assert len(callbackresult) == 2
             self.assertEqual(callbackresult[0][1],message,callbackresult[0][1])
             self.assertEqual(callbackresult[1][1],message,callbackresult[0][1])
@@ -1869,14 +1878,19 @@ class Test(unittest.TestCase):
 
 
     """
-        1.验证topic通配符+,sub:"TopicA/+",pub:"TopicA/B"
+    验证Topic格式格式-单层通配符
+        1.验证topic通配符+,sub:"TopicA/+"匹配pub:"TopicA/B"
+        2.验证topic通配符+,sub:"TopicA/+"不匹配pub:"TopicA/B/C"
     """
     def test_topic_format_second(self):
         print("topics:topics/+ test starting")
         succeeded = True
-        message=b"test topic:topic/#"
+        message=b"test topic:topic/+"
         callbackresult = []
+
+        #验证TopicA/+不匹配TopicA/B
         try:
+            print(topics[1],wildtopics[0])
             callbackresult = topictest(self,sub_index=0,pub_index=1,message=message)
             assert len(callbackresult) == 2,"callback length is %s"%(len(callback))
             self.assertEqual(callbackresult[0][1], message,callbackresult[0][1])
@@ -1884,9 +1898,12 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = False
+
+        #验证TopicA/+不匹配TopicA/B/C
+        succeeded = True
         try:
+            print(topics[5],wildtopics[0])
             callbackresult = topictest(self,sub_index=0,pub_index=5,message=message)
-#             self.assertEqual(callback[0][1], message,callback[0][1])
             assert len(callbackresult) == 0,print("层级不同无法接收到消息"+callbackresult)
         except:
             traceback.print_exc()
@@ -1896,7 +1913,11 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
-    #验证topic通配符
+
+
+    """
+        #验证topic通配符
+    """
     def test_topic_format_third(self):
         print("topics format +/# test starting")
         succeeded = True
@@ -1950,11 +1971,16 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         return succeeded
     
-    
-    #验证topic格式为+/+匹配规则
+    """
+    验证topic格式为+/+匹配规则
+        1.+/+ 匹配 TopicA/B TopicA/C TopicA/D
+        2./TopicA 匹配“+/+”和“/+”, 但是不匹配“+”
+    """
     def test_topic_format_fifth(self):
         print("test topic:+/+ starting")
         succeeded = True
+
+        print("+/+ 匹配 TopicA/B TopicA/C TopicA/D")
         try:
             callback.clear()
             connack = aclient.connect(host=host, port=port, cleansession=True)
@@ -1972,6 +1998,29 @@ class Test(unittest.TestCase):
             self.assertEqual(callback.messages[0][1],b"qos 0")
             self.assertEqual(callback.messages[1][1],b"qos 1")
             self.assertEqual(callback.messages[2][1],b"qos 2")
+            
+            time.sleep(2)
+            aclient.disconnect()
+            bclient.disconnect()
+        except:
+            traceback.print_exc()
+            succeeded = False
+
+        
+        print("/TopicA 匹配“+/+”和“/+")
+        try:
+            callback.clear()
+            connack = aclient.connect(host=host, port=port, cleansession=True)
+            print(wildtopics[5])
+            aclient.subscribe([wildtopics[5]], [2])
+            aclient.subscribe([wildtopics[4]], [2])
+            connack = bclient.connect(host=host, port=port, cleansession=True)
+            bclient.publish(topics[4], b"qos 2", 2)
+            time.sleep(2)
+            print(callback.messages)
+            assert len(callback.messages) == 2
+            self.assertEqual(callback.messages[0][1],b"qos 2")
+            self.assertEqual(callback.messages[1][1],b"qos 2")
             
             time.sleep(2)
             aclient.disconnect()
@@ -2129,7 +2178,11 @@ class Test(unittest.TestCase):
     
 
 
-    #订阅层级不相同的topic
+    """
+        订阅层级不相同的topic
+        1.sub topic:TopicA/B
+        2.pub topic:topicA/B/C/D/E/F/G/H/I
+    """
     def test_topic_format_eleventh(self):
         print("The testing sub and pub topic levels are different  starting")
         succeeded = True
@@ -2149,11 +2202,15 @@ class Test(unittest.TestCase):
         
 
 
-    #一个用户订阅了规则不同，但匹配结果相同的topic，此用户可以多条消息
+    """
+        一个用户订阅了规则不同，但匹配结果相同的topic，此用户可以多条消息
+        1.TopicA/+、TopicA/# 匹配pub:TopicA/B
+        2.TopicA/+ 不匹配TopicA
+        3.TopicA/+ 匹配TopicA/
+    """
     def test_topic_format_twelfth(self):
         print("The matching results are the same for different topic")
         succeeded = True
-        message = b"The matching results are the same for different topic"
         try:
             connect =  aclient.connect(host=host,port=port)
             aclient.subscribe([wildtopics[0]],[2])
@@ -2163,16 +2220,39 @@ class Test(unittest.TestCase):
             time.sleep(1)
             print("sub topic "+wildtopics[6])
             connect = bclient.connect(host=host,port=port)
-            bclient.publish(topics[1],message,1,retained=False)
+            bclient.publish(topics[1],b"test TopicA/# and TopicA/B",1,retained=False)
             print("pub topic "+topics[1])
             time.sleep(2)
             assert len(callback.messages) == 2
             print(callback.messages)
+            aclient.disconnect()
+            bclient.disconnect()
+            time.sleep(2)
         except:
              succeeded = False
-        aclient.disconnect()
-        bclient.disconnect()
-        print("The matching results are the same for different topic test", "succeeded" if succeeded else "failed")
+
+
+        #测试“sport/+”不匹配“sport”但是却匹配“sport/”
+        print("测试“TopicA/+”不匹配“TopicA”但是却匹配“TopicA/”")
+        succeeded = True
+        try:
+            callback.clear()
+            connect =  aclient.connect(host=host,port=port)
+            print("sub topic "+wildtopics[0])
+            aclient.subscribe([wildtopics[0]],[2])
+            time.sleep(1)
+            
+            connect = bclient.connect(host=host,port=port)
+            print("pub is %s"%topics[0])
+            bclient.publish(topics[0],b"test TopicA",1,retained=False)
+            bclient.publish(topics[8],b"test TopicA",1,retained=False)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) == 1
+            assert callback.messages[0][0] == "TopicA/"
+            assert callback.messages[0][1] == b'test TopicA'
+        except:
+            succeeded = False
         self.assertEqual(succeeded, True)
         return succeeded
 
@@ -2205,6 +2285,105 @@ class Test(unittest.TestCase):
         print("topic/# topics test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+
+    """
+        测试无效的topic格式：
+        1.“sport/tennis#”是无效的.
+        2.“sport/tennis/#/ranking”是无效的.
+    """
+    def test_topic_format_fifteenth(self):
+        print("Start:测试topic无效的格式\"sport/tennis#\"")
+        succeeded = True
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            print(invalidtopic[0])
+            aclient.subscribe([invalidtopic[0]],[1])
+            aclient.publish(topics[1],b"invalid topic one",2)
+            assert len(callback.messages) ==0
+        except:
+            succeeded =  False
+        assert succeeded == True
+        print("END")
+
+        succeeded = True
+        print("测试无效的topic格式：sport/tennis/#/ranking")
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            print(invalidtopic[0])
+            aclient.subscribe([invalidtopic[1]],[1])
+            aclient.publish(topics[1],b"invalid topic two",2)
+            assert len(callback.messages) ==0
+        except:
+            succeeded =  False
+        assert succeeded == True
+        print("END")
+
+
+    """
+        测试无效的topic格式-单层通配符：
+        1.“TopicA+”是无效的.
+    """
+    def test_topic_format_sixteenth(self):
+        print("Start:测试topic无效的格式\"sport/tennis#\"")
+        succeeded = True
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            print(invalidtopic[2])
+            aclient.subscribe([invalidtopic[2]],[1])
+            aclient.publish("TopicA+",b"invalid topic one",2)
+            assert len(callback.messages) ==0
+        except:
+            succeeded =  False
+        assert succeeded == True
+        print("END")
+
+
+    """
+    验证Topic格式格式-单层通配符
+        1.+/B/# 为有效的格式
+        2.TopicA/+/C 为有效的格式
+    """
+    def test_topic_format_seventeenth(self):
+        print("Start:测试topic:+/B/#  TopicA/+/C为有效的格式")
+        succeeded = True
+
+        #topic:+/B/# 为有效的格式
+        try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            print(wildtopics[10],topics[5])
+            aclient.subscribe([wildtopics[10]],[2])
+            aclient.publish(topics[5],b"+/B/#",2)
+            time.sleep(2)
+            aclient.disconnect()
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) ==1
+            assert callback.messages[0][0] == topics[5]
+            assert callback.messages[0][1] == b"+/B/#"
+        except:
+            succeeded =  False
+        assert succeeded == True
+
+        time.sleep(3)
+        #TopicA/+/C为有效的格式
+        succeeded = True
+        try:
+            callback.clear()
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            print(wildtopics[11],topics[5])
+            aclient.subscribe([wildtopics[11]],[2])
+            aclient.publish(topics[5],b"TopicA/+/C",2)
+            time.sleep(2)
+            print("callback.messages is %s"%callback.messages)
+            assert len(callback.messages) ==1
+            assert callback.messages[0][0] == topics[5]
+            assert callback.messages[0][1] == b"TopicA/+/C"
+        except:
+            succeeded =  False
+        assert succeeded == True
+        print("END")
+
+
 
     """
         1.验证topic层级为8层,64位字符
@@ -2281,7 +2460,7 @@ class Test(unittest.TestCase):
     """
         1.测试topic格式已$开头，例：$TopicA
     """
-    def test_topics_starting_with_dollar(self):
+    def test_topics_format_dollar1(self):
         # $ topics. The specification says that a topic filter which starts with a wildcard does not match topic names that
         # begin with a $.  Publishing to a topic which starts with a $ may not be allowed on some servers (which is entirely valid),
         # so this test will not work and should be omitted in that case.
@@ -2339,6 +2518,7 @@ class Test(unittest.TestCase):
         print("unsubscribe tests", "succeeded" if succeeded else "failed")
         return 
     
+
     """
         测试验证取消订阅一个未订阅的topic，不会断开连接
     """
@@ -2367,6 +2547,9 @@ class Test(unittest.TestCase):
         print("unsubscribe tests", "succeeded" if succeeded else "failed")
         return 
     
+    """
+        测试重复订阅topic
+    """
     def test_repetition_sub(self):
         print("test repetition sub starting")
         succeeded = True
@@ -2391,32 +2574,8 @@ class Test(unittest.TestCase):
         self.assertEqual(succeeded, True)
         print("test repetition sub tests", "succeeded" if succeeded else "failed")
         return succeeded
-    @unittest.skip("reason")
-    def tset_1(self):
-        print("Basic test starting")
-        global aclient
-        succeeded = True
-        try:
-            aclient.connect(host=host, port=port)
-            aclient.disconnect()
-    
-            connack = aclient.connect(host=host, port=port)
-            # #assert connack.flags == 0x00 # Session present
-            aclient.subscribe([topics[0]], [2])
-            aclient.publish(topics[0], b"qos 0")
-            aclient.publish(topics[0], b"qos 1", 1)
-            aclient.publish(topics[0], b"qos 2", 2)
-            time.sleep(2)
-            aclient.disconnect()
-            print(callback.messages)
-            self.assertEqual(len(callback.messages), 3)
-        except:
-            traceback.print_exc()
-            succeeded = False
-        
-        print("Basic test", "succeeded" if succeeded else "failed")
-        self.assertEqual(succeeded, True)
-        return succeeded
+
+
 
 if __name__ == "__main__":
     try:
