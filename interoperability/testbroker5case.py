@@ -342,6 +342,8 @@ class Test(unittest.TestCase):
             succeeded = False
         print(len(callback.messages))
         print(len(callback.messages))
+        aclient.disconnect()
+        bclient.disconnect()
         assert len(callback.messages) == number*3*len(topics)
         assert len(callback2.messages) == number*3*len(topics)
         self.assertEqual(succeeded,True)
@@ -357,7 +359,10 @@ class Test(unittest.TestCase):
         try:
             print("username = ", username1)
             print("password = ", password2)
-            connect = aclient.connect(host=host,port=port,username=username1,password=password2)
+            aclient = mqtt_client.Client(clientid1.encode("utf-8"))
+            aclient.registerCallback(callback)
+            aclient.setUserName(username1, password2)
+            connect = aclient.connect(host=host,port=port)
             print("login succeed")
         except:
             traceback.print_exc()
@@ -427,8 +432,8 @@ class Test(unittest.TestCase):
       self.assertEqual(props.UserProperty, [("a", "2"), ("c", "3")])
 
     # 0 length clientid
+    @unittest.skip("Does not support")
     def test_zero_length_clientid(self):
-      pass
       logging.info("Zero length clientid test starting")
       succeeded = True
       try:
@@ -653,11 +658,30 @@ class Test(unittest.TestCase):
     
 
     """
-
+    验证topic格式已$SYS
+        1.订阅“+/C”的客户端不会收到任何发布到“$SYS/C”的消息
     """
-    def test_topic_format_dollar2(self):
-      print("Start:")
-
+    def test_topics_format_dollar2(self):
+        print("Starting:订阅“+/C”的客户端不会收到任何发布到“$SYS/C”的消息")
+        succeeded = True
+        try:
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleanstart=True, keepalive=0)
+            print(wildtopics[1],topics[9])
+            bclient.subscribe([wildtopics[1]], [MQTTV5.SubscribeOptions(2)])
+            time.sleep(1) # wait for all retained messages, hopefully
+            callback2.clear()
+            bclient.publish(topics[9], b"$SYS/C", 1, retained=False)
+            time.sleep(2)
+            assert len(callback2.messages) == 0, callback2.messages
+            # bclient.disconnect()
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print("$SYS/C topics test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+        print("END")
 
     """
       测试取消订阅
@@ -1566,8 +1590,8 @@ class Test(unittest.TestCase):
       服务端为客户端设置的主题别名topic alias,
       目前服务端没有自主设置主题别名的能力
     """
+    @unittest.skip("Does not support")
     def test_server_topic_alias(self):
-      pass
       callback.clear()
 
       serverTopicAliasMaximum = 1 # server topic alias allowed
@@ -1758,8 +1782,8 @@ class Test(unittest.TestCase):
     """
       1.测试下行流控
     """
+    @unittest.skip("Does not support")
     def test_flow_control1(self):
-      pass
       testcallback = Callbacks()
       # no callback means no background thread, to control receiving
       testclient = mqtt_client.Client(clientid1.encode("utf-8"))
@@ -1844,8 +1868,8 @@ class Test(unittest.TestCase):
     """
       1.测试上行流控
     """
+    @unittest.skip("Does not support")
     def test_flow_control2(self):
-      pass
       testcallback = Callbacks()
       # no callback means no background thread, to control receiving
       testclient = mqtt_client.Client(clientid1.encode("utf-8"))
@@ -1985,8 +2009,8 @@ class Test(unittest.TestCase):
     """
         测试服务端是否支持共享订阅
     """
+    @unittest.skip("Does not support")
     def test_shared_subscriptions(self):
-      pass
       callback.clear()
       callback2.clear()
       shared_sub_topic = '$share/sharename/' + topic_prefix + 'x'
@@ -2665,9 +2689,9 @@ class Test(unittest.TestCase):
 def setData():
   global topics, wildtopics, nosubscribe_topics, host, port,clientid1,clientid2,clientid3,host,port,password1,password2,username1,username2,username3,appid,server,invalidtopic,topic_prefix,\
     error_cliendid,length_topic,length64_fold,length_clientid
-  #沙箱地址
-  host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-  port = 2883 #发送端口
+  # #沙箱地址
+  # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+  # port = 2883 #发送端口
 
   #EMQ地址
   # host = "broker.emqx.io"
@@ -2677,18 +2701,29 @@ def setData():
   # host = "172.17.1.160"
   # port = 1883
 
+  # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appid deviceid任意取值，只要保证唯一。
+  # clientid2 = "mqtttest2@1wyp94"
+  # clientid3 = "mqtttest3@1wyp94"
+  # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+  # username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
+  # password1 = b"$t$YWMtmkljBq41Eeu39Qv1-LC0RfLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QGXBIQBPGgDJJHzH_o8JNe8OnCH7DOZHrKQU05cDi1qZLKDIhcWn9w"  #用户密码，实际为与用户匹配的token
+  # password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
+  # password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
+  # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/","SYS/C")
+  
+  #3.使用灰度环境测试
+  host = "u84xg0.cn1.mqtt.chat"
+  port = 1883
+  username1,username2 = b"test1",b"test2"  #用户名称
+  password1 = b"$t$YWMtCteaTK_CEeujbVkTzK526V1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5SovchwBPGgAl7ssb_unxAm5PAPNhesG9bDQqKUunmzym0BNXzO-pcQ"  #用户密码，实际为与用户匹配的token
+  password2 = b"$t$YWMtFq6-LK_CEeuol78KCJ-ljV1sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5SowqHwBPGgCIMF0GnpvsoQdKQ0rsk0VK8fO9BIrn9v_L4JYaGQYsog"  #用户密码，实际为与用户匹配的token
+  clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  clientid2 = "test2@u84xg0"
+  appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
 
-  clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appid deviceid任意取值，只要保证唯一。
-  clientid2 = "mqtttest2@1wyp94"
-  clientid3 = "mqtttest3@1wyp94"
-  appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
-  username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-  password1 = b"$t$YWMtmkljBq41Eeu39Qv1-LC0RfLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QGXBIQBPGgDJJHzH_o8JNe8OnCH7DOZHrKQU05cDi1qZLKDIhcWn9w"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMtq6E8qq41EeuYmM-_R3av2fLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QGYyygBPGgAx8nXG_XiJ4gzEWSL0VjTmr07KfvmGOT2NgXSL9jsZvA"  #用户密码，实际为与用户匹配的token
-  topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/")
   invalidtopic = ("TopicA/B#","TopicA/#/C") #无效的topic
   topic_prefix = "client_test5/"
+  topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/","SYS/C")
   wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","+/B/#","TopicA/+/C") #订阅使用的topic
   nosubscribe_topics = ("test/nosubscribe",)  #已subscribe结尾的topic
   length_topic = "1234567890123456789012345678901234567890123456789012345678901234" #topic层级为1层，总长度为64位的topic

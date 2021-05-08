@@ -478,6 +478,7 @@ class Test(unittest.TestCase):
             # print(callback.messages)
             print("断言")
             print(len(callback.messages))
+            print("messages length is %d"%len(callback.messages[0][1]))
             self.assertEqual(len(callback.messages), 2)
             self.assertEqual(len(callback.messages[0][1]),number)
             self.assertEqual(len(callback.messages[1][1]),number)
@@ -551,22 +552,26 @@ class Test(unittest.TestCase):
     """
     def test_session_defaults_130s(self):
         print("The test session defaults to 120s")
-        succeeded = False
+        succeeded = True
         try:
             connect =  aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
-            aclient.subscribe(wildtopics[0],[2])
+            aclient.subscribe([wildtopics[0]],[2])
+            localtime_start = time.asctime( time.localtime(time.time()) )
+            print(localtime_start)
             aclient.disconnect()
+
             time.sleep(125)
+            localtime_end = time.asctime(time.localtime(time.time()))
+            print(localtime_end)
             connect =  aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(.1)
             aclient.publish(topics[1],b"test session",1,retained=False)
-            print(callback.message)
-            assert (len(callback.message)) ==0
-            self.assertEqual(callback.message[0][1],b"test session")
+            print(callback.messages)
+            assert (len(callback.messages)) ==0
         except:
             traceback.print_exc()
-            succeeded = True
+            succeeded = False
         print("The test session defaults to 120s %s""succeeded" if succeeded else "failed")
         self.assertTrue(succeeded)
 
@@ -1384,6 +1389,7 @@ class Test(unittest.TestCase):
     """
     def test_clientid_length_64(self):
         print("Starting:ClientId has a maximum length of 64")
+        # length_clientid = "test1@u84xg0"
         succeeded = True
         try:
             print("length clientid %d"%(len(length_clientid)))
@@ -1540,7 +1546,7 @@ class Test(unittest.TestCase):
         pass
         print("Staring：The maximum length of offline messages is 50")
         succeeded =  True
-        number = 50
+        number = 65536
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(2)
@@ -1638,8 +1644,14 @@ class Test(unittest.TestCase):
     def test_offline_message_number_eleven(self):
         print("Staring：The maximum number of offline messages is 100")
         succeeded =  True
-        number = 51
+        number = 26
         try:
+            #清除session中的sub和遗留消息
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            aclient.disconnect()
+            time.sleep(2)
+
+
             connect = aclient.connect(host=host,port=port,cleansession=False)
             print("will subscribe = ",wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[1])
@@ -2439,9 +2451,7 @@ class Test(unittest.TestCase):
         try:
             connect = aclient.connect(host=host,port=port,cleansession=True)
             aclient.subscribe([length_topic],[1])
-            # print(callback.subscribeds)
-            # assert len(callback.subscribeds) == 1
-            # aclient.disconnect()
+            # aclient.subscribe(["12345678901234567890123456789012"],[1])
         except:
             succeeded =  False
         #appconfig中设置topic最大为64位，向topic发布消息成功
@@ -2452,6 +2462,7 @@ class Test(unittest.TestCase):
             connect = bclient.connect(host=host,port=port,cleansession=True)
             print("user B login succeed")
             bclient.publish(length_topic,b"test topic length is 64",2,retained=False)
+            # bclient.publish("12345678901234567890123456789012",b"test topic length is 64",2,retained=False)
             time.sleep(1)
             bclient.disconnect()
         except:
