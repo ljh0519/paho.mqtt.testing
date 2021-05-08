@@ -226,23 +226,34 @@ class Test(unittest.TestCase):
     authentication = False
 
     # # 1.使用沙箱环境测试
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
 
     #2.使用本地环境测试
     # host = "172.17.1.160"
     # port = 1883
-
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
-
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
-    topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/",)
+    #3.使用灰度环境测试
+    host = "u84xg0.cn1.mqtt.chat"
+    port = 1883
+    username1,username2 = b"test1",b"test2"  #用户名称
+    password1 = b"$t$YWMtk6N1Xq81EeuBw1M1M9VgNV1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5RvNOSgBPGgApeXhdLSYsLXLc_tVZPxubPbJLoDxjA-AY5LuArOgl4g"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMtnguFuK81EeufLEMGR3wVm11sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5RvOSfQBPGgD9FIP641lGLn_zU0huu-LmkKxtKS55JDX-DzzoNnnQRw"  #用户密码，实际为与用户匹配的token
+    clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "test2@u84xg0"
+    appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
+
+
+
+
+    topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/","$SYS/C")
     invalidtopic = ("TopicA/B#","TopicA/#/C","TopicA+")
     wildtopics = ("TopicA/+", "+/C", "#", "/#", "/+", "+/+", "TopicA/#","+/#","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","+/B/#","TopicA/+/C")
     nosubscribe_topics = ("test/nosubscribe",)
@@ -572,8 +583,6 @@ class Test(unittest.TestCase):
         connack = aclient.connect(host=host, port=port,cleansession=False)
         aclient.subscribe([topics[1]], [2])
         time.sleep(1)
-        print("aclient.subscribeds = ", callback.subscribeds)
-        # aclient.disconnect()
         aclient.terminate()
         print("user A shutdown")
         time.sleep(2)
@@ -583,8 +592,6 @@ class Test(unittest.TestCase):
         connack = bclient.connect(host=host, port=port,cleansession=True)
         bclient.publish(topics[1], b"qos1", 1, retained=False)
         time.sleep(1)
-        # aclient.disconnect()
-        # bclient.disconnect()
         aclient.terminate()
         bclient.terminate()
         print("user A and b shutdown")
@@ -1414,7 +1421,7 @@ class Test(unittest.TestCase):
         except:
             traceback.print_exc()
             succeeded = True
-        print("ClientId has a maximum length of 65 is %s""succeeded"if succeeded else "failed")
+        print("ClientId has a maximum length of 65 is ""succeeded"if succeeded else "failed")
         self.assertEqual(succeeded,True)
 
 
@@ -2075,7 +2082,7 @@ class Test(unittest.TestCase):
         message = b"test"
         #订阅和发布topic层级为8层
         try:
-            callbackresult = topictest(self,sub_index=7,pub_index=9,message=message)
+            callbackresult = topictest(self,sub_index=9,pub_index=7,message=message)
             print(topics[7])
             print(wildtopics[9])
             self.assertEqual(len(callbackresult), 2,"callbackresult is %s"%(callbackresult))
@@ -2482,6 +2489,34 @@ class Test(unittest.TestCase):
         print("$ topics test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
         return succeeded
+
+
+
+    """
+    验证topic格式已$SYS
+        1.订阅“+/C”的客户端不会收到任何发布到“$SYS/C”的消息
+    """
+    def test_topics_format_dollar2(self):
+        print("Starting:订阅“+/C”的客户端不会收到任何发布到“$SYS/C”的消息")
+        succeeded = True
+        try:
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleansession=True, keepalive=0)
+            print(wildtopics[1],topics[9])
+            bclient.subscribe([wildtopics[1]], [2])
+            time.sleep(1) # wait for all retained messages, hopefully
+            callback2.clear()
+            bclient.publish(topics[9], b"$SYS/C", 1, retained=False)
+            time.sleep(2)
+            assert len(callback2.messages) == 0, callback2.messages
+            # bclient.disconnect()
+        except:
+            traceback.print_exc()
+            succeeded = False
+        print("$SYS/C topics test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
+        print("END")
 
 
     """
