@@ -253,16 +253,30 @@ class Test(unittest.TestCase):
     # port = 1883
 
     # 1.测试地址沙箱环境
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
-    username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
-    password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
-    password3 = b"$t$YWMtjxTqjK5TEeuyPom2A3QN6_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5QSoTWABPGgB1pJEEJfes47tHrJQEUPRJyqaoOhx4jlzCzoz_mLuKlw"
-    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1wyp94"
-    clientid3 = "mqtttest3@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
+    # username1,username2,username3 = b"mqtttest1",b"mqtttest2",b"mqtttest3"  #用户名称
+    # password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
+    # password3 = b"$t$YWMtjxTqjK5TEeuyPom2A3QN6_LBUj23REhmv2d9MJZsm8V_NJnAqLYR64KoB6bbHIoMAwMAAAF5QSoTWABPGgB1pJEEJfes47tHrJQEUPRJyqaoOhx4jlzCzoz_mLuKlw"
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+    # clientid3 = "mqtttest3@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+
+
+
+    #灰度地址
+    host = "0ilrg0.cn1.mqtt.chat"   #发送地址
+    port = 1883 #发送端口
+    username1,username2,username3 = b"test1",b"test2",b"test3"  #用户名称
+    password1 = b"$t$YWMtvJvjGq_aEeuJ6V-6Tk4jnYoCJAeOvkEwk-SlQeEP00ZvVFBgr9oR664WJfDPsivIAwMAAAF5Sy2y2wBPGgBkzAPq1IKVHsh0xWFtmZiZhEJdXWZdEnGiWGiE1aNCLA"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMtwaVvDK_aEeubs7O4WLuaA4oCJAeOvkEwk-SlQeEP00Zzh-fwr9oR66DX6w60nED7AwMAAAF5Sy3T3gBPGgCXiadBkpvHIKf2a1dMAZZmFk7VuEeMYT0o3mHrRAOROg"  #用户密码，实际为与用户匹配的token
+    password3 = b"$t$YWMtEWwyHq_bEeuovMn6rvFAOYoCJAeOvkEwk-SlQeEP00YQTKhQr9sR65WESaBqnoDJAwMAAAF5Sy_esQBPGgC2lBfA-unim5aTj_Gn-eZNH8i_qCjc3XxGqcQ5bWekGQ"
+    clientid1 = "test1@0ilrg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "test2@0ilrg0"
+    clientid3 = "test3@0ilrg0"
+    appid = {"right_appid":"0ilrg0","error_appid":"","noappid":"123"} #构建appid
 
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")

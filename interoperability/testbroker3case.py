@@ -226,29 +226,30 @@ class Test(unittest.TestCase):
     authentication = False
 
     # # 1.使用沙箱环境测试
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
 
     #2.使用本地环境测试
     # host = "172.17.1.160"
     # port = 1883
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+
+    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "mqtttest2@1wyp94"
+    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
     #3.使用灰度环境测试
-    host = "u84xg0.cn1.mqtt.chat"
-    port = 1883
-    username1,username2 = b"test1",b"test2"  #用户名称
-    password1 = b"$t$YWMtk6N1Xq81EeuBw1M1M9VgNV1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5RvNOSgBPGgApeXhdLSYsLXLc_tVZPxubPbJLoDxjA-AY5LuArOgl4g"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMtnguFuK81EeufLEMGR3wVm11sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5RvOSfQBPGgD9FIP641lGLn_zU0huu-LmkKxtKS55JDX-DzzoNnnQRw"  #用户密码，实际为与用户匹配的token
-    clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "test2@u84xg0"
-    appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
+    # host = "u84xg0.cn1.mqtt.chat"
+    # port = 1883
+    # username1,username2 = b"test1",b"test2"  #用户名称
+    # password1 = b"$t$YWMtk6N1Xq81EeuBw1M1M9VgNV1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5RvNOSgBPGgApeXhdLSYsLXLc_tVZPxubPbJLoDxjA-AY5LuArOgl4g"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMtnguFuK81EeufLEMGR3wVm11sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5RvOSfQBPGgD9FIP641lGLn_zU0huu-LmkKxtKS55JDX-DzzoNnnQRw"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "test2@u84xg0"
+    # appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
 
 
 
@@ -424,28 +425,27 @@ class Test(unittest.TestCase):
                 time.sleep(.2)
         except:
             succeeded = False
-        # f = generate_random_str(10)
         print("send messages")
         succeeded = True
         number = 10
         try:
-            # f = generate_random_str(10)
             for num in range(number):
-                for i in range(len(topics)):
+                for i in range(8):
                     print(num,i)
                     print("first")
                     aclient.publish(topics[i],b"publish topic: qos0",0, retained=False)
-                    print("sencode")
+                    print("second")
                     aclient.publish(topics[i],b"publish topic qos1", 1, retained=False)
                     print("third")
                     aclient.publish(topics[i],b"publish topic qos2", 2, retained=False)
                     time.sleep(1)
         except:
             succeeded = False
+        time.sleep(2)
         print(len(callback.messages))
         print(len(callback.messages))
-        assert len(callback.messages) == number*3*len(topics)
-        assert len(callback2.messages) == number*3*len(topics)
+        assert len(callback.messages) == number*3*8
+        assert len(callback2.messages) == number*3*8
         self.assertEqual(succeeded,True)
 
 
@@ -1546,7 +1546,7 @@ class Test(unittest.TestCase):
         pass
         print("Staring：The maximum length of offline messages is 50")
         succeeded =  True
-        number = 65536
+        number = 65535
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(2)
@@ -1644,7 +1644,7 @@ class Test(unittest.TestCase):
     def test_offline_message_number_eleven(self):
         print("Staring：The maximum number of offline messages is 100")
         succeeded =  True
-        number = 26
+        number = 51
         try:
             #清除session中的sub和遗留消息
             connect = aclient.connect(host=host,port=port,cleansession=True)
