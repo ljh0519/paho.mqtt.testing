@@ -226,30 +226,30 @@ class Test(unittest.TestCase):
     authentication = False
 
     # # 1.使用沙箱环境测试
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
 
-    #2.使用本地环境测试
+    ##2.使用本地环境测试
     # host = "172.17.1.160"
     # port = 1883
 
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "mqtttest2@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
 
 
-    #3.使用灰度环境测试
-    # host = "u84xg0.cn1.mqtt.chat"
-    # port = 1883
-    # username1,username2 = b"test1",b"test2"  #用户名称
-    # password1 = b"$t$YWMtk6N1Xq81EeuBw1M1M9VgNV1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5RvNOSgBPGgApeXhdLSYsLXLc_tVZPxubPbJLoDxjA-AY5LuArOgl4g"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMtnguFuK81EeufLEMGR3wVm11sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5RvOSfQBPGgD9FIP641lGLn_zU0huu-LmkKxtKS55JDX-DzzoNnnQRw"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "test2@u84xg0"
-    # appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
+    ## 3.使用灰度环境测试
+    host = "u84xg0.cn1.mqtt.chat"
+    port = 1883
+    username1,username2 = b"test1",b"test2"  #用户名称
+    password1 = b"$t$YWMtk6N1Xq81EeuBw1M1M9VgNV1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5RvNOSgBPGgApeXhdLSYsLXLc_tVZPxubPbJLoDxjA-AY5LuArOgl4g"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMtnguFuK81EeufLEMGR3wVm11sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5RvOSfQBPGgD9FIP641lGLn_zU0huu-LmkKxtKS55JDX-DzzoNnnQRw"  #用户密码，实际为与用户匹配的token
+    clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "test2@u84xg0"
+    appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
 
 
 
@@ -296,6 +296,7 @@ class Test(unittest.TestCase):
         callback2.clear()
     
     def tearDown(self):
+        time.sleep(3)
         cleanup()
 
 
@@ -516,6 +517,7 @@ class Test(unittest.TestCase):
     """
         1。默认是session保存时长为1800分钟，为了方便测试可以找研发修改session默认时长（此case设置默认时长为120s）
     """
+    @unittest.skip("notrun")
     def test_session_defaults_120s(self):
         print("The test session defaults to 120s")
         succeeded = True
@@ -550,6 +552,7 @@ class Test(unittest.TestCase):
     """
         1.默认是session保存时长为1800分钟，为了方便测试可以找研发修改session默认时长（此case设置默认时长为120s）
     """
+    @unittest.skip("notrun")
     def test_session_defaults_130s(self):
         print("The test session defaults to 120s")
         succeeded = True

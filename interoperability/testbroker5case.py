@@ -229,6 +229,7 @@ class Test(unittest.TestCase):
       callback2.clear()
 
     def tearDown(self):
+        time.sleep(3)
         cleanup()
 
 
