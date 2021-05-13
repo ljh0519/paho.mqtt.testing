@@ -250,21 +250,33 @@ class Test(unittest.TestCase):
     authentication = False
 
     # 1.测试地址沙箱环境
-    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    port = 2883 #发送端口
+    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    # port = 2883 #发送端口
 
 
     #本地
     # host = "172.17.1.160"
     # port = 1883
-    username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "ckjaakjncalnla@1RK24W"
-    # clientid2 = "ckjaakjncalnla1@1RK24W"
-    clientid1 = "mqtttest1@1wyp94"
-    clientid2 = "mqtttest2@1wyp94"
-    appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
+    # password1 = b"$t$YWMtfkgSxK5TEeuKo9m0p9yBdvLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5QSmlPgBPGgB2spFvP-VKLZq0jNZFX7prp27Dl1r9HTKiQragZafz0g"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMthZ-muK5TEeu08X8LnG8fZPLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5QSnVXABPGgD10AgW-NPh_MZdBMiaUDF7chiGUKgTJF21Im4omvZcxA"  #用户密码，实际为与用户匹配的token
+    # # clientid1 = "ckjaakjncalnla@1RK24W"
+    # # clientid2 = "ckjaakjncalnla1@1RK24W"
+    # clientid1 = "mqtttest1@1wyp94"
+    # clientid2 = "mqtttest2@1wyp94"
+    # appid = {"right_appid":"1wyp94","error_appid":"","noappid":"123"} #构建appid
+
+
+    # ##4.线上环境测试
+    host = "d7gri0.cn1.mqtt.chat"
+    port = 1883
+    username1,username2 = b"new1",b"new2"  #用户名称
+    password1 = b"$t$YWMtFR3NErMMEeuC95OTzO-ZDl5AQmb_yEzop9wTAw-bvlEMXxcwswwR65rRhbnCr3BcAwMAAAF5YBpBcgBPGgA-u0dY2twMPYD-s8EZDKkk8mWBEZw5OqvyLem21tDAcw"  #用户密码，实际为与用户匹配的token
+    password2 = b"$t$YWMtHtzI5LMMEeuXBl0VuysnE15AQmb_yEzop9wTAw-bvlET6EJgswwR67HYoQA3IQ44AwMAAAF5YBqBUQBPGgDfi4zNMk_1lPPBlCm0mxhlBgDSz26R9S2ZhK7L_BrVyA"  #用户密码，实际为与用户匹配的token
+    clientid1 = "new1@d7gri0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "new2@d7gri0"
+    appid = {"right_appid":"d7gri0","error_appid":"123","noappid":""} #构建appid
+
     
 
     topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g")
@@ -369,7 +381,7 @@ class Test(unittest.TestCase):
                     aclient.publish(topics[i], b"c %d"%1, 2)
                     time.sleep(1)   #由于发送消息太快，导致服务端未消费，部分消息会丢失,所以发送消息后等待时间设置1s
             print("send end")
-            time.sleep(10)
+            time.sleep(1000)
         except:
             succeeded = False
         print(len(callback.messages))
