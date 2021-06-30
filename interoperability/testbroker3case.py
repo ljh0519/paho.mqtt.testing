@@ -244,15 +244,15 @@ class Test(unittest.TestCase):
     # port = 2883 #发送端口
 
     #2.使用本地环境测试
-    # host = "172.17.1.160"
-    # port = 1883
+    host = "172.17.1.70"
+    port = 1883
 
-    # username1,username2 = b"mqtttest1",b"mqtttest2"  #用户名称
-    # password1 = b"$t$YWMtzP0sDKdAEeu14SMMp-gviPLBUj23REhmv2d9MJZsm8W1kvwQpbMR67NY5XfrXvBLAwMAAAF5Es8XPgBPGgDR9jOQyYerAtoFZ0sPW5Uf8UXkYmdcUBVtU1Ewu4N_qQ"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMt1xc7aqdAEeucVx_UwbjRCfLBUj23REhmv2d9MJZsm8W6vmEgpbMR655ln0Nsooa_AwMAAAF5Es9ZcgBPGgCp3XBI7JwPhYo6JnKGwcFN067Cagq_PmGIWiotkNf99w"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "mqtttest2@1wyp94"
-    # appid = {"right_appid":"1wyp94","error_appid":"123","noappid":""} #构建appid
+    username1,username2 = b"test-ljh2",b"test-ljh2"  #用户名称
+    password1 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+    password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+    clientid1 = "mqtttest1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "mqtttest2@1PGUGY"
+    appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
 
 
     ## 3.使用灰度环境测试
@@ -267,14 +267,14 @@ class Test(unittest.TestCase):
 
 
     # ##4.线上环境测试
-    host = "bdpyi0.cn1.mqtt.chat"
-    port = 1883
-    username1,username2 = b"new1",b"new2"  #用户名称
-    password1 = b"$t$YWMtpG0uYrL0EeuGLUkgSfGw9i6oxDHX8UASjSSl-6v2g7OekGaAsvQR672TY9Z5F5-wAwMAAAF5X4CjUwBPGgDmR-rf1qq5gd4rxFZY7ZiMNQWG5dMaiFBCtyVhvzx49Q"  #用户密码，实际为与用户匹配的token
-    password2 = b"$t$YWMtslqysLL0Eeuu7p3XNsOlBi6oxDHX8UASjSSl-6v2g7OxRklwsvQR66wYB3sAeEB5AwMAAAF5X4D-mgBPGgCRorD-alGlixP9pwCllqPF2BTI6GQ_8738dkV4fJG-lg"  #用户密码，实际为与用户匹配的token
-    clientid1 = "new1@bdpyi0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "new2@bdpyi0"
-    appid = {"right_appid":"bdpyi0","error_appid":"123","noappid":""} #构建appid
+    # host = "bdpyi0.cn1.mqtt.chat"
+    # port = 1883
+    # username1,username2 = b"new1",b"new2"  #用户名称
+    # password1 = b"$t$YWMtpG0uYrL0EeuGLUkgSfGw9i6oxDHX8UASjSSl-6v2g7OekGaAsvQR672TY9Z5F5-wAwMAAAF5X4CjUwBPGgDmR-rf1qq5gd4rxFZY7ZiMNQWG5dMaiFBCtyVhvzx49Q"  #用户密码，实际为与用户匹配的token
+    # password2 = b"$t$YWMtslqysLL0Eeuu7p3XNsOlBi6oxDHX8UASjSSl-6v2g7OxRklwsvQR66wYB3sAeEB5AwMAAAF5X4D-mgBPGgCRorD-alGlixP9pwCllqPF2BTI6GQ_8738dkV4fJG-lg"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "new1@bdpyi0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "new2@bdpyi0"
+    # appid = {"right_appid":"bdpyi0","error_appid":"123","noappid":""} #构建appid
 
 
     #各种不同topic格式
@@ -295,7 +295,7 @@ class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
       global callback, callback2, callback3,aclient, bclient,cclient
-    #   cleanup()
+      cleanup()
 
       callback = Callbacks()
       callback2 = Callbacks()
@@ -530,10 +530,12 @@ class Test(unittest.TestCase):
             connect = aclient.connect(host=host,port=port,username=username1,password=password2)
             print("login succeed")
         except:
-            traceback.print_exc()
             succeeded = True
-        print("test_login_username_and_paw_donot_math starting %s""succeeded" if succeeded else "failed")
-        assert succeeded == True
+            traceback.print_exc()
+            
+        print("test_login_username_and_paw_donot_math starting ""succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
 
 
 
@@ -611,13 +613,19 @@ class Test(unittest.TestCase):
       try:
         # callback.clear()
         # callback2.clear()
-        connack = aclient.connect(host=host, port=port,cleansession=False)
-        aclient.subscribe([topics[1]], [2])
+        connack = aclient.connect(host=host, port=port,cleansession=True)
         time.sleep(1)
         aclient.terminate()
-        print("user A shutdown")
+        connack = aclient.connect(host=host, port=port,cleansession=False)
+        aclient.subscribe([topics[1]], [2])
+        time.sleep(2)
+        aclient.terminate()
+        print("user a shutdown")
+        print("aclient.messages = ", callback.messages)
         time.sleep(2)
         connack = aclient.connect(host=host, port=port,cleansession=False)
+        callback.clear()
+        callback2.clear()
         print("aclient.subscribeds = ", callback.subscribeds)
         time.sleep(2)
         connack = bclient.connect(host=host, port=port,cleansession=True)
@@ -625,7 +633,7 @@ class Test(unittest.TestCase):
         time.sleep(1)
         aclient.terminate()
         bclient.terminate()
-        print("user A and b shutdown")
+        print("user a and b shutdown")
         print("aclient.messages = ", callback.messages)
         self.assertEqual(len(callback.messages), 1)
         self.assertEqual(callback.messages[0][1], b"qos1")
@@ -871,7 +879,7 @@ class Test(unittest.TestCase):
             callback.clear()
             connack = aclient.connect(host=host, port=port, cleansession=True)
 #             #assert connack.flags == 0x00 # Session present
-            print(topics[1],topics[2],topics[3],wildtopics[5])
+            print("topics = ", topics[1],topics[2],topics[3],wildtopics[5])
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[2], b"qos 1", 1, retained=True)
             aclient.publish(topics[3], b"qos 2", 2, retained=True)
@@ -879,7 +887,7 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[5]], [2])
             time.sleep(5)
             aclient.disconnect()
-            print(callback.messages)
+            print("callback.messages = ", callback.messages)
             assert len(callback.messages) == 3
             #目前排序是按照topic命名排序
             for index in range(len(callback.messages)):
@@ -1446,14 +1454,14 @@ class Test(unittest.TestCase):
     def test_clientid_length_65(self):
         print("Starting:ClientId has a maximum length of 65")
         print("clientid length is %d"%len(error_cliendid["overlength_clientid"]))
-        succeeded = True
+        succeeded = False
         try:
             client0 = mqtt_client.Client(error_cliendid["overlength_clientid"].encode("utf-8"))
             client0.setUserName(username1,password1)
             connect = client0.connect(host=host,port=port,cleansession=True)
         except:
             traceback.print_exc()
-            succeeded = False
+            succeeded = True
         print("succeeded = ",succeeded)
         print("ClientId has a maximum length of 65 is ""succeeded"if succeeded else "failed")
         self.assertEqual(succeeded,True)
@@ -1529,6 +1537,7 @@ class Test(unittest.TestCase):
             #用户A断开连接
             aclient.disconnect()
             #用户B登陆
+            callback.clear()
             connack = bclient.connect(host=host, port=port, cleansession=True)
             #assert connack.flags == 0x00 # Session present
             #用户B分别向"TopicA/B", "Topic/C", "TopicA/C"发送qos0、1、2消息
@@ -1682,6 +1691,8 @@ class Test(unittest.TestCase):
         succeeded =  True
         number = 100
         try:
+            callback.clear()
+            callback2.clear()
             #清除session中的sub和遗留消息
             connect = aclient.connect(host=host,port=port,cleansession=True)
             aclient.disconnect()
@@ -1825,7 +1836,9 @@ class Test(unittest.TestCase):
       self.assertEqual(succeeded, True)
       return succeeded
 
-
+    """
+        1.测试重连时重新投递未发送完的 mqtt 包
+    """
     def test_redelivery_on_reconnect(self):
       # redelivery on reconnect. When a QoS 1 or 2 exchange has not been completed, the server should retry the
       # appropriate MQTT packets
