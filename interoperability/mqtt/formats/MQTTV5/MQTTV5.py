@@ -25,6 +25,7 @@ so that the tests that use this package can send invalid data for error testing.
 """
 
 import logging, struct
+import traceback
 
 logger = logging.getLogger('MQTT broker')
 
