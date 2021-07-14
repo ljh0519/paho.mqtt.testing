@@ -243,15 +243,22 @@ class Test(unittest.TestCase):
     # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
     # port = 2883 #发送端口
 
+    # username1,username2 = b"test1",b"test2"  #用户名称
+    # password1 = b"YWMttVg1NN_UEeu2c7cCFK0IpTud1H4FJUIyg7juB5eNw_2AMTFw35kR6738Gai-9H-cAwMAAAF6hZjT8ABPGgDg3H6_-QFwnALwl4FFcAxV8HMC9gLHy_42jrQZVegEEg"  #用户密码，实际为与用户匹配的token
+    # password2 = b"YWMtwlpJPt_UEeueroPead1VPDud1H4FJUIyg7juB5eNw_2GdYCQ35kR67cbWRAQgcjJAwMAAAF6hZkpMABPGgCt1B9AxK9X6f38JMjc_VawwkkjeyjmjoKHn34Yu3Vq-g"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "test1@xt3gh0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "test2@xt3gh0"
+    # appid = {"right_appid":"xt3gh0","error_appid":"123","noappid":""} #构建appid
+
     #2.使用本地环境测试
-    host = "172.17.1.70"
+    host = "172.17.1.160"
     port = 1883
 
-    username1,username2 = b"test-ljh2",b"test-ljh2"  #用户名称
-    password1 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
-    password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
-    clientid1 = "mqtttest1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "mqtttest2@1PGUGY"
+    username1,username2 = b"test-ljh",b"test-ljh"  #用户名称
+    password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+    password2 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+    clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "test-ljh2@1PGUGY"
     appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
 
 
@@ -320,8 +327,9 @@ class Test(unittest.TestCase):
         callback2.clear()
     
     def tearDown(self):
+        pass
         # time.sleep(3)
-        cleanup()
+        # cleanup()
 
 
 
@@ -542,29 +550,33 @@ class Test(unittest.TestCase):
     """
         1。默认是session保存时长为1800分钟，为了方便测试可以找研发修改session默认时长（此case设置默认时长为120s）
     """
-    @unittest.skip("notrun")
+    # @unittest.skip("notrun")
     def test_session_defaults_120s(self):
         print("The test session defaults to 120s")
         succeeded = True
         try:
+            connect =  aclient.connect(host=host,port=port,cleansession=True)
+            time.sleep(1)
+            aclient.disconnect()
+            time.sleep(1)
             connect =  aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
+            time.sleep(1)
             aclient.disconnect()
             localtime_start = time.asctime( time.localtime(time.time()) )
-            print(localtime_start)
-            time.sleep(115)
+            print("localtime_start : ", localtime_start)
+            time.sleep(110)
             localtime_end = time.asctime(time.localtime(time.time()))
-            print(localtime_end)
+            print("localtime_end : ", localtime_end)
             connect =  aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(.1)
             aclient.publish(topics[1],b"test session",1,retained=False)
             time.sleep(1)
             aclient.disconnect()
-            print(callback.messages)
+            print("callback.messages : ", callback.messages)
             assert (len(callback.messages)) ==1
             self.assertEqual(callback.messages[0][1],b"test session")
-
         except:
             traceback.print_exc()
             succeeded = False
@@ -577,7 +589,7 @@ class Test(unittest.TestCase):
     """
         1.默认是session保存时长为1800分钟，为了方便测试可以找研发修改session默认时长（此case设置默认时长为120s）
     """
-    @unittest.skip("notrun")
+    # @unittest.skip("notrun")
     def test_session_defaults_130s(self):
         print("The test session defaults to 120s")
         succeeded = True
@@ -605,7 +617,9 @@ class Test(unittest.TestCase):
 
 
 
-
+    """
+        1.测试clean_session为false时，逻辑是否正常
+    """
     def test_cleansession_false(self):
       print("cleansession false test starting")
       global aclient
@@ -616,13 +630,14 @@ class Test(unittest.TestCase):
         connack = aclient.connect(host=host, port=port,cleansession=True)
         time.sleep(1)
         aclient.terminate()
+        time.sleep(1)
         connack = aclient.connect(host=host, port=port,cleansession=False)
         aclient.subscribe([topics[1]], [2])
         time.sleep(2)
         aclient.terminate()
         print("user a shutdown")
         print("aclient.messages = ", callback.messages)
-        time.sleep(2)
+        time.sleep(1)
         connack = aclient.connect(host=host, port=port,cleansession=False)
         callback.clear()
         callback2.clear()
@@ -1079,16 +1094,18 @@ class Test(unittest.TestCase):
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[1], b"qos 1", 1, retained=True)
             aclient.publish(topics[1], b"qos 2", 2, retained=True)
-            time.sleep(5)
+            time.sleep(2)
 #             aclient.disconnect()
 #             time.sleep(1)
             connack = bclient.connect(host=host, port=port, cleansession=True)
             bclient.subscribe([topics[1]], [2])
             time.sleep(1)
-            print(callback2.messages)
+            print("callback2.messages: ", callback2.messages)
             assert len(callback2.messages) == 1
             self.assertEqual(callback2.messages[0][1], b"qos 2")
             succeeded = True
+            aclient.publish(topics[1], b"", 2, retained=True)
+            time.sleep(1)
         except:
             traceback.print_exc()
         print("nosub reatin message test", "succeeded" if succeeded else "failed")
@@ -1576,40 +1593,40 @@ class Test(unittest.TestCase):
         return succeeded
 
 
-    """
-        1.测试消息最大长度为50字节（官网规定最大字节是65535，为了测试，目前嘉豪给设置的最大字节是50）
-    """
-    def test_send_message_length_50(self):
-        pass
-        print("Staring：The maximum length of offline messages is 50")
-        succeeded =  True
-        number = 65535
-        f = generate_random_str(number) #随机构建一个指定字符串
-        message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
-        time.sleep(2)
-        # message = b"12345678901234567890123456789012345678901234567890"
-        try:
-            connect = aclient.connect(host=host,port=port)
-            print(wildtopics[0],topics[1])
-            aclient.subscribe([wildtopics[0]],[2])
-            time.sleep(.1)
-            connect = bclient.connect(host=host,port=port)
-            bclient.publish(topics[1],message,2,retained=False)
-            time.sleep(2)
-            print(callback.messages)
-            self.assertEqual(len(callback.messages),1)
-            aclient.disconnect
-            bclient.disconnect
-        except:
-            traceback.print_exc()
-            succeeded = False
-        print(len(callback.messages))
-        print("The maximum length of messages is 50 ""success" if succeeded else "failed" )
-        self.assertEqual(succeeded,True)
+    # """
+    #     1.测试消息最大长度为50字节（官网规定最大字节是65535，为了测试，目前嘉豪给设置的最大字节是50）
+    # """
+    # def test_send_message_length_50(self):
+    #     pass
+    #     print("Staring：The maximum length of offline messages is 50")
+    #     succeeded =  True
+    #     number = 65535
+    #     f = generate_random_str(number) #随机构建一个指定字符串
+    #     message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
+    #     time.sleep(2)
+    #     # message = b"12345678901234567890123456789012345678901234567890"
+    #     try:
+    #         connect = aclient.connect(host=host,port=port)
+    #         print(wildtopics[0],topics[1])
+    #         aclient.subscribe([wildtopics[0]],[2])
+    #         time.sleep(.1)
+    #         connect = bclient.connect(host=host,port=port)
+    #         bclient.publish(topics[1],message,2,retained=False)
+    #         time.sleep(2)
+    #         print(callback.messages)
+    #         self.assertEqual(len(callback.messages),1)
+    #         aclient.disconnect
+    #         bclient.disconnect
+    #     except:
+    #         traceback.print_exc()
+    #         succeeded = False
+    #     print(len(callback.messages))
+    #     print("The maximum length of messages is 50 ""success" if succeeded else "failed" )
+    #     self.assertEqual(succeeded,True)
 
 
     """
-        1.发送消息字节书超过50个，此条消息被丢弃(appconfig默认配置是65535)
+        1.发送消息字节书超过65535个，此条消息被丢弃(appconfig默认配置是65535)
     """
     def test_send_message_length_65536(self):
         print("Staring：The maximum length of offline messages")   
@@ -1626,10 +1643,9 @@ class Test(unittest.TestCase):
             connect = bclient.connect(host=host,port=port,cleansession=True)
             bclient.publish(topics[1],message,2,retained=False)
             time.sleep(2)
-            print(callback.messages)
+            print("callback.messages: ", callback.messages)
             assert len(callback.messages) == 0
-            aclient.disconnect
-            bclient.disconnect
+            aclient.disconnect()
         except:
             traceback.print_exc()
             succeeded = False
@@ -1639,11 +1655,11 @@ class Test(unittest.TestCase):
 
 
     """
-        1.离线消息最大条数为100条
+        1.离线消息最大条数为164条，100条离线消息 + 64条飞行窗口
     """
     def test_offline_message_number_ten(self):
         print("Staring：The maximum number of offline messages")
-        number = 105
+        number = 83
         succeeded =  True
         try:
             connect = aclient.connect(host=host,port=port,cleansession=False)
@@ -1669,7 +1685,7 @@ class Test(unittest.TestCase):
 
             print("用户A重新连接获取消息")
             connect = aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(20)
+            time.sleep(25)
             print(callback.messages)
             # aclient.disconnect()
             # bclient.disconnect()
@@ -1677,19 +1693,19 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = False
         print("the offline message number is %d"%(len(callback.messages)))
-        assert len(callback.messages) == 201
+        assert len(callback.messages) == 164
         self.assertEqual(succeeded,True)
 
 
 
 
     """
-        1.离线消息超过100条后，只保留100+1条，删除最老的数据
+        1.测试离线消息
     """
-    def test_offline_message_number_eleven(self):
-        print("Staring：The maximum number of offline messages is 100")
+    def test_offline_message_number(self):
+        print("Staring：The maximum number of offline messages is 10")
         succeeded =  True
-        number = 100
+        number = 5
         try:
             callback.clear()
             callback2.clear()
@@ -1728,8 +1744,8 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = False
         print(len(callback.messages))
-        assert len(callback.messages) == 200 #目前离线消息callback.messages中应该10+1，10为离线消息数，1为最后一次发送消息一直在尝试发送。
-        print("The maximum number of offline messages is 100 ""success" if succeeded else "failed" )
+        assert len(callback.messages) == 10 #目前离线消息callback.messages中应该10+1，10为离线消息数，1为最后一次发送消息一直在尝试发送。
+        print("The maximum number of offline messages is 10 ""success" if succeeded else "failed" )
         self.assertEqual(succeeded,True)
 
 
@@ -1818,17 +1834,20 @@ class Test(unittest.TestCase):
       print("Keep_alive test starting")
       succeeded = True
       try:
-        callback2.clear()
-        aclient.connect(host=host, port=port, cleansession=True, keepalive=5, willFlag=True,
-              willTopic=topics[4], willMessage=b'keepalive_expiry')
         bclient.connect(host=host, port=port, cleansession=True, keepalive=0)
         #注释topics[4]=/TopicA
-        bclient.subscribe([topics[4]], [2])
+        time.sleep(1)
+        callback2.clear()
+        bclient.subscribe([topics[5]], [2])
+        print("bclient.subscribe : ", topics[5])
+        time.sleep(2)
+        aclient.connect(host=host, port=port, cleansession=True, keepalive=5, willFlag=True,
+              willTopic=topics[5], willMessage=b'keepalive_expiry')
         time.sleep(15)
         bclient.disconnect()
-        print(callback2.messages)
-        self.assertEqual(callback2.messages[0][1], b"keepalive_expiry")
+        print("callback2.messages : ", callback2.messages)
         assert len(callback2.messages) == 1, "length should be 1: %s" % callback2.messages # should have the will message
+        self.assertEqual(callback2.messages[0][1], b"keepalive_expiry")
       except:
         traceback.print_exc()
         succeeded = False
@@ -1874,7 +1893,7 @@ class Test(unittest.TestCase):
       return succeeded
 
 
-
+    @unittest.skip("notrun")
     def test_topic_format_nosubscribe_end(self):
       # Subscribe failure.  A new feature of MQTT 3.1.1 is the ability to send back negative reponses to subscribe
       # requests.  One way of doing this is to subscribe to a topic which is not allowed to be subscribed to.
@@ -2059,7 +2078,7 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[5]], [2])
             connack = bclient.connect(host=host, port=port, cleansession=True)
             # #assert connack.flags == 0x00 # Session present
-            print(topics[1],topics[2],topics[3])
+            print("topics = ", topics[1],topics[2],topics[3])
             bclient.publish(topics[1], b"qos 0", 0)
             bclient.publish(topics[2], b"qos 1", 1)
             bclient.publish(topics[3], b"qos 2", 2)
@@ -2077,6 +2096,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
             succeeded = False
 
+        time.sleep(2)
         
         print("/TopicA 匹配“+/+”和“/+")
         try:
