@@ -2607,8 +2607,8 @@ class Test(unittest.TestCase):
         succeeded = True
         try:
             connect = aclient.connect(host=host,port=port,cleanstart=True)
-            print(invalidtopic[2])
-            aclient.subscribe([invalidtopic[2]],[MQTTV5.SubscribeOptions(1)])
+            print(invalidtopic[1])
+            aclient.subscribe([invalidtopic[1]],[MQTTV5.SubscribeOptions(1)])
             aclient.publish("TopicA+",b"invalid topic one",2)
             assert len(callback.messages) ==0
         except:
@@ -2630,11 +2630,13 @@ class Test(unittest.TestCase):
             print(wildtopics[10],topics[5])
             aclient.subscribe([wildtopics[10]],[MQTTV5.SubscribeOptions(1)])
             aclient.publish(topics[5],b"+/B/#",2)
+            aclient.unsubscribe([wildtopics[10]])
+         
             time.sleep(1)
             aclient.disconnect()
             print("callback.messages is %s"%callback.messages)
             assert len(callback.messages) ==1
-            assert callback.messages[0][0] == topics[5]
+            assert callback.messages[0][0] == topics[5]  
             assert callback.messages[0][1] == b"+/B/#"
         except:
             succeeded =  False
@@ -2643,6 +2645,8 @@ class Test(unittest.TestCase):
         time.sleep(3)
         #TopicA/+/C为有效的格式
         succeeded = True
+        # 列表清空，不然会有遗留上次的数据
+        callback.messages = []
         try:
             connect = aclient.connect(host=host,port=port,cleanstart=True)
             print(wildtopics[11],topics[5])
@@ -2652,6 +2656,8 @@ class Test(unittest.TestCase):
             print("callback.messages is %s"%callback.messages)
             assert len(callback.messages) ==1
             assert callback.messages[0][0] == topics[5]
+     
+
             assert callback.messages[0][1] == b"TopicA/+/C"
         except:
             succeeded =  False
@@ -2713,14 +2719,15 @@ def setData():
   # topics =  ("TopicA", "TopicA/B", "Topic/C", "TopicA/C", "/TopicA","TopicA/B/C","topicA/B/C/D/E/F/G/H/I","topic/a/b/c/d/e/f/g","TopicA/","SYS/C")
   
   #3.使用灰度环境测试
-  host = "u84xg0.cn1.mqtt.chat"
+  # host = "u84xg0.cn1.mqtt.chat"
+  host = "172.17.1.70"
   port = 1883
   username1,username2 = b"test1",b"test2"  #用户名称
   password1 = b"$t$YWMtCteaTK_CEeujbVkTzK526V1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5SovchwBPGgAl7ssb_unxAm5PAPNhesG9bDQqKUunmzym0BNXzO-pcQ"  #用户密码，实际为与用户匹配的token
   password2 = b"$t$YWMtFq6-LK_CEeuol78KCJ-ljV1sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5SowqHwBPGgCIMF0GnpvsoQdKQ0rsk0VK8fO9BIrn9v_L4JYaGQYsog"  #用户密码，实际为与用户匹配的token
-  clientid1 = "test1@u84xg0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-  clientid2 = "test2@u84xg0"
-  appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
+  clientid1 = "clientid01@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  clientid2 = "clientid03@1PGUGY"
+  appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
 
   invalidtopic = ("TopicA/B#","TopicA/#/C") #无效的topic
   topic_prefix = "client_test5/"
@@ -2767,6 +2774,8 @@ if __name__ == "__main__":
   root = logging.getLogger()
   root.setLevel(logging.ERROR)
 
+  host = ""
+  port = ""
   logging.info("hostname %s port %d", host, port)
   print("argv", sys.argv)
   for i in range(iterations):
