@@ -129,6 +129,7 @@ def qostest(self,sub_qos=None,pub_qos=None,message=None):
     print(wildtopics[6],topics[1])
     bclient.subscribe([wildtopics[6]], [sub_qos])
     time.sleep(1)
+
 #     callback2.clear()
     bclient.publish(topics[1], message, pub_qos, retained=False)
     time.sleep(2)
@@ -254,9 +255,9 @@ class Test(unittest.TestCase):
     host = "172.17.1.160"
     port = 1883
 
-    username1,username2 = b"test-ljh",b"test-ljh"  #用户名称
+    username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
     password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
-    password2 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+    password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
     clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
     clientid2 = "test-ljh2@1PGUGY"
     appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
@@ -562,7 +563,7 @@ class Test(unittest.TestCase):
             connect =  aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
-            time.sleep(1)
+            time.sleep(2)
             aclient.disconnect()
             localtime_start = time.asctime( time.localtime(time.time()) )
             print("localtime_start : ", localtime_start)
@@ -570,9 +571,9 @@ class Test(unittest.TestCase):
             localtime_end = time.asctime(time.localtime(time.time()))
             print("localtime_end : ", localtime_end)
             connect =  aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(.1)
+            time.sleep(2)
             aclient.publish(topics[1],b"test session",1,retained=False)
-            time.sleep(1)
+            time.sleep(2)
             aclient.disconnect()
             print("callback.messages : ", callback.messages)
             assert (len(callback.messages)) ==1
@@ -1453,7 +1454,7 @@ class Test(unittest.TestCase):
             bclient.subscribe([wildtopics[0]],[2])
             connect = client0.connect(host=host,port=port,cleansession=True)
             client0.publish(topics[1],b"test",1,retained=False)
-            time.sleep(1)
+            time.sleep(2)
             print(len(callback2.messages))
             assert len(callback2.messages) == 1
             self.assertEqual(callback2.messages[0][1],b"test")
@@ -1768,7 +1769,7 @@ class Test(unittest.TestCase):
                 bclient.publish(topics[1],b'test offline message qos2 num is %d'%(index),2,retained=False)
             for index in range(1,6):
                 bclient.publish(topics[1],b'test offline message qos1 num is %d'%(index),1,retained=False)
-            time.sleep(2)
+            time.sleep(5)
             connect = aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(5)
             print(callback.messages)
@@ -2105,9 +2106,10 @@ class Test(unittest.TestCase):
             print(wildtopics[5])
             aclient.subscribe([wildtopics[5]], [2])
             aclient.subscribe([wildtopics[4]], [2])
+            time.sleep(2)
             connack = bclient.connect(host=host, port=port, cleansession=True)
             bclient.publish(topics[4], b"qos 2", 2)
-            time.sleep(2)
+            time.sleep(3)
             print(callback.messages)
             assert len(callback.messages) == 2
             self.assertEqual(callback.messages[0][1],b"qos 2")

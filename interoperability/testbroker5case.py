@@ -342,7 +342,8 @@ class Test(unittest.TestCase):
         except:
             succeeded = False
         print(len(callback.messages))
-        print(len(callback.messages))
+        print(len(callback2.messages))
+        time.sleep(30)
         aclient.disconnect()
         bclient.disconnect()
         assert len(callback.messages) == number*3*len(topics)
@@ -547,6 +548,7 @@ class Test(unittest.TestCase):
       except:
         traceback.print_exc()
         succeeded = False
+        
       logging.info("Keepalive test %s", "succeeded" if succeeded else "failed")
       self.assertEqual(succeeded, True)
       return succeeded
@@ -672,7 +674,7 @@ class Test(unittest.TestCase):
             bclient.subscribe([wildtopics[1]], [MQTTV5.SubscribeOptions(2)])
             time.sleep(1) # wait for all retained messages, hopefully
             callback2.clear()
-            bclient.publish(topics[9], b"$SYS/C", 1, retained=False)
+            bclient.publish("$"+topics[9], b"$SYS/C", 1, retained=False)
             time.sleep(2)
             assert len(callback2.messages) == 0, callback2.messages
             # bclient.disconnect()
@@ -688,8 +690,9 @@ class Test(unittest.TestCase):
       测试取消订阅
     """
     def test_unsubscribe(self):
-      callback2.clear()
+      # callback2.clear()
       bclient.connect(host=host, port=port, cleanstart=True)
+      aclient.connect(host=host, port=port, cleanstart=True)
       bclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2)])
       bclient.subscribe([topics[1]], [MQTTV5.SubscribeOptions(2)])
       bclient.subscribe([topics[2]], [MQTTV5.SubscribeOptions(2)])
@@ -697,17 +700,16 @@ class Test(unittest.TestCase):
       # Unsubscribe from one topic
       bclient.unsubscribe([topics[0]])
       callback2.clear() # if there were any retained messsages
-
-      aclient.connect(host=host, port=port, cleanstart=True)
+      time.sleep(2)
       aclient.publish(topics[0], b"topic 0 - unsubscribed", 1, retained=False)
       aclient.publish(topics[1], b"topic 1", 1, retained=False)
       aclient.publish(topics[2], b"topic 2", 1, retained=False)
-      time.sleep(2)
+      time.sleep(5)
 
+      print("callback2.messages is ", callback2.messages)
+      self.assertEqual(len(callback2.messages), 2, callback2.messages)
       bclient.disconnect()
       aclient.disconnect()
-      print("callback2.messages is %s"%callback2.messages)
-      self.assertEqual(len(callback2.messages), 2, callback2.messages)
 
 
 
@@ -909,6 +911,7 @@ class Test(unittest.TestCase):
       bclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2, noLocal=True)])
       self.waitfor(callback.subscribeds, 1, 3)
 
+      time.sleep(2)
       aclient.publish(topics[0], b"noLocal test", 1, retained=False)
       self.waitfor(callback2.messages, 1, 3)
       time.sleep(1)
@@ -1076,8 +1079,6 @@ class Test(unittest.TestCase):
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
-      # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
-      # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
       print("pub is %s %s %s"%(topics[1],topics[2],topics[3]))
       aclient.publish(topics[1], b"qos 0", 0, retained=True)
       aclient.publish(topics[2], b"qos 1", 1, retained=True)
@@ -1097,28 +1098,31 @@ class Test(unittest.TestCase):
       aclient.disconnect()
 
 
+    """
+        测试retain handling=1情况下，重复订阅topic不会收到retain消息
+    """
     def test_subscribe_retainHandling_two(self):
       # retainHandling
       callback.clear()
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
       # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(2, retainHandling=1)])
-      print("unsub")
-      aclient.unsubscribe([wildtopics[5]])
+      # print("unsub")
+      # aclient.unsubscribe([wildtopics[5]])
       # aclient.unsubscribe(["TopicA/+"])
       time.sleep(1)
       print("pub is %s %s %s"%(topics[1],topics[2],topics[3]))
       aclient.publish(topics[1], b"qos 0", 0, retained=True)
       aclient.publish(topics[2], b"qos 1", 1, retained=True)
       aclient.publish(topics[3], b"qos 2", 2, retained=True)
+      time.sleep(2)
       callback.clear()
-      time.sleep(1)
       print("sub is %s"%wildtopics[5])
       aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
       # aclient.subscribe(["TopicA/+"], [MQTTV5.SubscribeOptions(1, retainHandling=1)])
       time.sleep(1)
       print(callback.messages)
-      self.assertEqual(len(callback.messages), 3, callback.messages)
+      self.assertEqual(len(callback.messages), 0, callback.messages)
       callback.clear()
 
     """
@@ -1167,11 +1171,12 @@ class Test(unittest.TestCase):
       bclient.connect(host=host, port=port, cleanstart=True)
       bclient.publish(topics[0], b"retain as published false", 1, retained=False)
       bclient.publish(topics[0], b"retain as published true", 1, retained=True)
+      time.sleep(1)
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2, retainAsPublished=True)])
       self.waitfor(callback.subscribeds, 1, 3)
 
-      self.waitfor(callback.messages, 2, 3)
+      # self.waitfor(callback.messages, 2, 3)
       time.sleep(1)
 
       print("retainAsPublished result")
@@ -1192,19 +1197,20 @@ class Test(unittest.TestCase):
 
       # retainAsPublished
 
-      bclient.connect(host=host, port=port, cleanstart=True)
-      bclient.publish(topics[0], b"retain as published false", 1, retained=False)
-      bclient.publish(topics[0], b"retain as published true", 1, retained=True)
       aclient.connect(host=host, port=port, cleanstart=True)
       aclient.subscribe([topics[0]], [MQTTV5.SubscribeOptions(2, retainAsPublished=False)])
+      time.sleep(2)
+      bclient.connect(host=host, port=port, cleanstart=True)
+      # bclient.publish(topics[0], b"retain as published false", 1, retained=False)
+      bclient.publish(topics[0], b"retain as published true", 1, retained=True)
 
-      time.sleep(5)
+      time.sleep(2)
 
       print("retainAsPublished result")
       print("callback.messages is %s"%callback.messages)
       self.assertEqual(len(callback.messages), 1, callback.messages)
       aclient.disconnect()
-      self.assertEqual(callback.messages[0][3], True)
+      self.assertEqual(callback.messages[0][3], False)
       self.assertEqual(callback.messages[0][1], b"retain as published true")
 
       cleanRetained()
@@ -1412,6 +1418,7 @@ class Test(unittest.TestCase):
       print("ResponseTopic is %s "%topics[0])
       publish_properties.ResponseTopic = topics[0]
       publish_properties.CorrelationData = b"334"
+      time.sleep(2)
       # client a is the requester
       aclient.publish(topics[0], b"request", 1, properties=publish_properties)
 
@@ -1545,6 +1552,7 @@ class Test(unittest.TestCase):
     """
       1.服务端默认topic alias个数为0，设置topic alias个数为1，设置topic alias
     """
+    @unittest.skip("Does not support")
     def test_client_topic_alias_2(self):
       succeeded = False
       #设置connect属性，topic alias 个数
@@ -2404,16 +2412,18 @@ class Test(unittest.TestCase):
         try:
             callback.clear()
             connack = aclient.connect(host=host, port=port, cleanstart=True)
-            print(wildtopics[5])
+            print("wildtopics = ", wildtopics[5])
             aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
             connack = bclient.connect(host=host, port=port, cleanstart=True)
             # #assert connack.flags == 0x00 # Session present
-            print(topics[1],topics[2],topics[3])
+            print("topic1 = ", topics[1])
+            print("topic2 = ", topics[2])
+            print("topic3 = ", topics[3])
             bclient.publish(topics[1], b"qos 0", 0)
             bclient.publish(topics[2], b"qos 1", 1)
             bclient.publish(topics[3], b"qos 2", 2)
             time.sleep(2)
-            print(callback.messages)
+            print("callback.messages = ", callback.messages)
             assert len(callback.messages) == 3
             self.assertEqual(callback.messages[0][1],b"qos 0")
             self.assertEqual(callback.messages[1][1],b"qos 1")
@@ -2629,7 +2639,9 @@ class Test(unittest.TestCase):
             connect = aclient.connect(host=host,port=port,cleanstart=True)
             print(wildtopics[10],topics[5])
             aclient.subscribe([wildtopics[10]],[MQTTV5.SubscribeOptions(1)])
+            time.sleep(1)
             aclient.publish(topics[5],b"+/B/#",2)
+            time.sleep(1)
             aclient.unsubscribe([wildtopics[10]])
          
             time.sleep(1)
@@ -2700,14 +2712,27 @@ def setData():
   # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
   # port = 2883 #发送端口
 
+  # username1,username2 = b"test1",b"test2"  #用户名称
+  # password1 = b"YWMtiCYs6OSDEeuGdB053BncBjud1H4FJUIyg7juB5eNw_2AMTFw35kR6738Gai-9H-cAwMAAAF6pElv8gBPGgAP8vEN2AeV0sbgj6GWIbLBGMHQqAu4VdOuf2d019epvw"  #用户密码，实际为与用户匹配的token
+  # password2 = b"YWMtnkYV7OSDEeuBOy0mz1Myzjud1H4FJUIyg7juB5eNw_2GdYCQ35kR67cbWRAQgcjJAwMAAAF6pEoA8QBPGgCojKn_bLuEtlysxYc0cHFTqDkw8O83B8NwEdu-6TAkKA"  #用户密码，实际为与用户匹配的token
+  # clientid1 = "test1@xt3gh0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  # clientid2 = "test2@xt3gh0"
+  # appid = {"right_appid":"xt3gh0","error_appid":"123","noappid":""} #构建appid  
+
   #EMQ地址
   # host = "broker.emqx.io"
   # port = 1883
 
   # # 本地地址
-  # host = "172.17.1.160"
-  # port = 1883
+  host = "172.17.1.160"
+  port = 1883
 
+  username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
+  password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+  password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+  clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  clientid2 = "test-ljh2@1PGUGY"
+  appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
   # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appid deviceid任意取值，只要保证唯一。
   # clientid2 = "mqtttest2@1wyp94"
   # clientid3 = "mqtttest3@1wyp94"
@@ -2720,14 +2745,16 @@ def setData():
   
   #3.使用灰度环境测试
   # host = "u84xg0.cn1.mqtt.chat"
-  host = "172.17.1.70"
-  port = 1883
-  username1,username2 = b"test1",b"test2"  #用户名称
-  password1 = b"$t$YWMtCteaTK_CEeujbVkTzK526V1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5SovchwBPGgAl7ssb_unxAm5PAPNhesG9bDQqKUunmzym0BNXzO-pcQ"  #用户密码，实际为与用户匹配的token
-  password2 = b"$t$YWMtFq6-LK_CEeuol78KCJ-ljV1sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5SowqHwBPGgCIMF0GnpvsoQdKQ0rsk0VK8fO9BIrn9v_L4JYaGQYsog"  #用户密码，实际为与用户匹配的token
-  clientid1 = "clientid01@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-  clientid2 = "clientid03@1PGUGY"
-  appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+  # host = "172.17.1.70"
+  # host = "172.17.1.160"
+  # port = 1883
+  # username1,username2 = b"test1",b"test2"  #用户名称
+  # password1 = b"YWMtCteaTK_CEeujbVkTzK526V1sX1imUEzfk5lfe1faUboBbQ7QTkAR65eBl-mVHsvfAwMAAAF5SovchwBPGgAl7ssb_unxAm5PAPNhesG9bDQqKUunmzym0BNXzO-pcQ"  #用户密码，实际为与用户匹配的token
+  # password2 = b"YWMtFq6-LK_CEeuol78KCJ-ljV1sX1imUEzfk5lfe1faUboG3WwgTkAR66BQGfiQ80EzAwMAAAF5SowqHwBPGgCIMF0GnpvsoQdKQ0rsk0VK8fO9BIrn9v_L4JYaGQYsog"  #用户密码，实际为与用户匹配的token
+  # clientid1 = "clientid01@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  # clientid2 = "clientid03@1PGUGY"
+  # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+
 
   invalidtopic = ("TopicA/B#","TopicA/#/C") #无效的topic
   topic_prefix = "client_test5/"
