@@ -491,7 +491,7 @@ class Test(unittest.TestCase):
     """
     def test_send_message_length(self):
         succeeded = True
-        number = 65535
+        number = 65525
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(1)
@@ -504,17 +504,17 @@ class Test(unittest.TestCase):
             aclient.subscribe([topics[0]], [2])
             # aclient.publish(topics[0], message, 0)
             aclient.publish(topics[0], message, 1)
-            time.sleep(.1)
-            aclient.publish(topics[0], message, 2)
             time.sleep(2)
+            # aclient.publish(topics[0], message, 2)
+            # time.sleep(2)
             aclient.disconnect()
             # print(callback.messages)
             print("断言")
             print(len(callback.messages))
             print("messages length is %d"%len(callback.messages[0][1]))
-            self.assertEqual(len(callback.messages), 2)
+            self.assertEqual(len(callback.messages), 1)
             self.assertEqual(len(callback.messages[0][1]),number)
-            self.assertEqual(len(callback.messages[1][1]),number)
+            # self.assertEqual(len(callback.messages[1][1]),number)
         except:
             traceback.print_exc()
             succeeded = False
@@ -1629,10 +1629,10 @@ class Test(unittest.TestCase):
     """
         1.发送消息字节书超过65535个，此条消息被丢弃(appconfig默认配置是65535)
     """
-    def test_send_message_length_65536(self):
+    def test_send_message_length_65526(self):
         print("Staring：The maximum length of offline messages")   
         succeeded =  True     
-        number = 65536
+        number = 65526
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(1)
@@ -1804,7 +1804,7 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[6], wildtopics[0]], [2, 1])
             #注释topics[3]="TopicA/C"
             aclient.publish(topics[3], b"overlapping topic filters", 2)
-            time.sleep(1)
+            time.sleep(3)
             print(callback.messages)
             assert len(callback.messages) in [1, 2]
             #打印出callback.messages
