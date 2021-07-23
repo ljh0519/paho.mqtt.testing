@@ -244,12 +244,12 @@ class Test(unittest.TestCase):
     # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
     # port = 2883 #发送端口
 
-    # username1,username2 = b"test1",b"test2"  #用户名称
-    # password1 = b"YWMttVg1NN_UEeu2c7cCFK0IpTud1H4FJUIyg7juB5eNw_2AMTFw35kR6738Gai-9H-cAwMAAAF6hZjT8ABPGgDg3H6_-QFwnALwl4FFcAxV8HMC9gLHy_42jrQZVegEEg"  #用户密码，实际为与用户匹配的token
-    # password2 = b"YWMtwlpJPt_UEeueroPead1VPDud1H4FJUIyg7juB5eNw_2GdYCQ35kR67cbWRAQgcjJAwMAAAF6hZkpMABPGgCt1B9AxK9X6f38JMjc_VawwkkjeyjmjoKHn34Yu3Vq-g"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "test1@xt3gh0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "test2@xt3gh0"
-    # appid = {"right_appid":"xt3gh0","error_appid":"123","noappid":""} #构建appid
+    # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
+    # password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+    # password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "test1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "test2@1PGUGY"
+    # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
 
     #2.使用本地环境测试
     host = "172.17.1.160"
@@ -475,7 +475,7 @@ class Test(unittest.TestCase):
                     time.sleep(1)
         except:
             succeeded = False
-        time.sleep(2)
+        time.sleep(20)
         print(len(callback.messages))
         print(len(callback.messages))
         assert len(callback.messages) == number*3*8
@@ -491,7 +491,7 @@ class Test(unittest.TestCase):
     """
     def test_send_message_length(self):
         succeeded = True
-        number = 65525
+        number = 65521
         f = generate_random_str(number) #随机构建一个指定字符串
         message = bytes(f, encoding='utf-8')    #将字符串转化为bytes
         time.sleep(1)
@@ -1663,10 +1663,14 @@ class Test(unittest.TestCase):
         number = 83
         succeeded =  True
         try:
+            connect = aclient.connect(host=host,port=port,cleansession=True)
+            time.sleep(1)
+            aclient.disconnect()
+            time.sleep(1)
             connect = aclient.connect(host=host,port=port,cleansession=False)
             print(wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[2])
-            time.sleep(.1)
+            time.sleep(1)
             aclient.disconnect()
             # aclient.terminate()
             print("断开")
@@ -1684,9 +1688,11 @@ class Test(unittest.TestCase):
                 bclient.publish(topics[1],b'message %d'%(num),1,retained=False)
                 time.sleep(.2)
 
+            time.sleep(50)
+            bclient.disconnect()
             print("用户A重新连接获取消息")
             connect = aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(25)
+            time.sleep(50)
             print(callback.messages)
             # aclient.disconnect()
             # bclient.disconnect()

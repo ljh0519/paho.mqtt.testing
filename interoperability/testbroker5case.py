@@ -865,27 +865,27 @@ class Test(unittest.TestCase):
       disconnect_properties = MQTTV5.Properties(MQTTV5.PacketTypes.DISCONNECT)
       disconnect_properties.SessionExpiryInterval = 999999999
       bclient.disconnect(properties = disconnect_properties)
-
+      time.sleep(2)
       aclient.connect(host=host, port=port, cleanstart=True)
       publish_properties = MQTTV5.Properties(MQTTV5.PacketTypes.PUBLISH)
       publish_properties.MessageExpiryInterval = 1
       print("pub is %s"%topics[0])
       aclient.publish(topics[0], b"qos 1 - expire", 1, retained=False, properties=publish_properties)
       aclient.publish(topics[0], b"qos 2 - expire", 2, retained=False, properties=publish_properties)
-      publish_properties.MessageExpiryInterval = 6
+      publish_properties.MessageExpiryInterval = 8
       aclient.publish(topics[0], b"qos 1 - don't expire", 1, retained=False, properties=publish_properties)
       aclient.publish(topics[0], b"qos 2 - don't expire", 2, retained=False, properties=publish_properties)
 
-      time.sleep(3)
+      time.sleep(2)
       print("user B is login")
       bclient.connect(host=host, port=port, cleanstart=False)
       self.waitfor(callback2.messages, 1, 3)
-      time.sleep(1)
+      time.sleep(5)
       print("callback2.messages is %s"%callback2.messages)
       self.assertEqual(len(callback2.messages), 2, callback2.messages)
-      self.assertTrue(callback2.messages[0][5].MessageExpiryInterval < 6,
+      self.assertTrue(callback2.messages[0][5].MessageExpiryInterval < 8,
                              callback2.messages[0][5].MessageExpiryInterval)
-      self.assertTrue(callback2.messages[1][5].MessageExpiryInterval < 6,
+      self.assertTrue(callback2.messages[1][5].MessageExpiryInterval < 8,
                                    callback2.messages[1][5].MessageExpiryInterval)
       self.assertTrue((callback2.messages[0][1] == b"qos 2 - don't expire" and callback2.messages[1][1] == b"qos 1 - don't expire") or \
         (callback2.messages[0][1] == b"qos 1 - don't expire" and callback2.messages[1][1] == b"qos 2 - don't expire") )
@@ -2414,6 +2414,7 @@ class Test(unittest.TestCase):
             connack = aclient.connect(host=host, port=port, cleanstart=True)
             print("wildtopics = ", wildtopics[5])
             aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
+            time.sleep(2)
             connack = bclient.connect(host=host, port=port, cleanstart=True)
             # #assert connack.flags == 0x00 # Session present
             print("topic1 = ", topics[1])
@@ -2422,7 +2423,7 @@ class Test(unittest.TestCase):
             bclient.publish(topics[1], b"qos 0", 0)
             bclient.publish(topics[2], b"qos 1", 1)
             bclient.publish(topics[3], b"qos 2", 2)
-            time.sleep(2)
+            time.sleep(3)
             print("callback.messages = ", callback.messages)
             assert len(callback.messages) == 3
             self.assertEqual(callback.messages[0][1],b"qos 0")
@@ -2442,12 +2443,15 @@ class Test(unittest.TestCase):
         try:
             callback.clear()
             connack = aclient.connect(host=host, port=port, cleanstart=True)
-            print(wildtopics[5])
+            print("wildtopics[5] = ", wildtopics[5])
+            print("wildtopics[4] = ", wildtopics[4])
+            print("topics[4] = ", topics[4])
             aclient.subscribe([wildtopics[5]], [MQTTV5.SubscribeOptions(2)])
             aclient.subscribe([wildtopics[4]], [MQTTV5.SubscribeOptions(2)])
+            time.sleep(2)
             connack = bclient.connect(host=host, port=port, cleanstart=True)
             bclient.publish(topics[4], b"qos 2", 2)
-            time.sleep(2)
+            time.sleep(3)
             print(callback.messages)
             assert len(callback.messages) == 2
             self.assertEqual(callback.messages[0][1],b"qos 2")
