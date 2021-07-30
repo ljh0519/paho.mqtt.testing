@@ -20,6 +20,9 @@ import unittest
 import random
 
 import mqtt.clients.V311 as mqtt_client, time, logging, socket, sys, getopt, traceback
+import threading
+
+
 
 class Callbacks(mqtt_client.Callback):
 
@@ -302,7 +305,7 @@ class Test(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
-      global callback, callback2, callback3,aclient, bclient,cclient
+      global callback, callback2, callback3, aclient, bclient,cclient
       cleanup()
 
       callback = Callbacks()
@@ -845,7 +848,7 @@ class Test(unittest.TestCase):
             aclient.publish(topics[1], b"qos 0", 0, retained=True)
             aclient.publish(topics[2], b"qos 1", 1, retained=False)
             aclient.publish(topics[3], b"qos 2", 2, retained=True)
-            time.sleep(1)
+            time.sleep(3)
             aclient.disconnect()
             print(callback.messages)
             print(callback.messages[0][1])
@@ -865,14 +868,14 @@ class Test(unittest.TestCase):
             # clear retained messages
             callback.clear()
             connack = aclient.connect(host=host, port=port, cleansession=True)
+            time.sleep(1)
             #assert connack.flags == 0x00 # Session present
             aclient.publish(topics[1], b"", 0, retained=True)
             aclient.publish(topics[2], b"", 1, retained=True)
             aclient.publish(topics[3], b"", 2, retained=True)
-            time.sleep(1) # wait for QoS 2 exchange to be completed
+            time.sleep(3) # wait for QoS 2 exchange to be completed
             aclient.subscribe([wildtopics[5]], [2])
-            time.sleep(1)
-            aclient.disconnect()
+            time.sleep(2)
 
             assert len(callback.messages) == 0, "callback messages is %s" % callback.messages
             succeeded = True
@@ -880,6 +883,7 @@ class Test(unittest.TestCase):
             traceback.print_exc()
         print("Retained message test", "succeeded" if succeeded else "failed")
         self.assertEqual(succeeded, True)
+        aclient.disconnect()
         return succeeded
     
     
@@ -1660,7 +1664,7 @@ class Test(unittest.TestCase):
     """
     def test_offline_message_number_ten(self):
         print("Staring：The maximum number of offline messages")
-        number = 83
+        number = 60
         succeeded =  True
         try:
             connect = aclient.connect(host=host,port=port,cleansession=True)
@@ -1672,6 +1676,7 @@ class Test(unittest.TestCase):
             aclient.subscribe([wildtopics[0]],[2])
             time.sleep(1)
             aclient.disconnect()
+            callback.clear()
             # aclient.terminate()
             print("断开")
             time.sleep(5)
@@ -1688,19 +1693,19 @@ class Test(unittest.TestCase):
                 bclient.publish(topics[1],b'message %d'%(num),1,retained=False)
                 time.sleep(.2)
 
-            time.sleep(50)
+            time.sleep(30)
             bclient.disconnect()
             print("用户A重新连接获取消息")
-            connect = aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(50)
-            print(callback.messages)
+            # connect = aclient.connect(host=host,port=port,cleansession=False)
+            # time.sleep(40)
+            # print(callback.messages)
             # aclient.disconnect()
             # bclient.disconnect()
         except:
             traceback.print_exc()
             succeeded = False
         print("the offline message number is %d"%(len(callback.messages)))
-        assert len(callback.messages) == 164
+        assert len(callback.messages) == 100
         self.assertEqual(succeeded,True)
 
 
@@ -1718,6 +1723,7 @@ class Test(unittest.TestCase):
             callback2.clear()
             #清除session中的sub和遗留消息
             connect = aclient.connect(host=host,port=port,cleansession=True)
+            time.sleep(1)
             aclient.disconnect()
             time.sleep(2)
 
@@ -1725,9 +1731,10 @@ class Test(unittest.TestCase):
             connect = aclient.connect(host=host,port=port,cleansession=False)
             print("will subscribe = ",wildtopics[0],topics[1])
             aclient.subscribe([wildtopics[0]],[1])
-            time.sleep(.1)
+            time.sleep(1)
             print("waiting for disconnect")
             aclient.disconnect()
+            callback.clear()
             print("disconnect succeeded")
             time.sleep(5)   #等待断开连接
 
@@ -1739,6 +1746,7 @@ class Test(unittest.TestCase):
             for num in range(number):
                 bclient.publish(topics[1],b'test offline message qos1 num is %d'%(num),1,retained=False)
                 time.sleep(.2)
+            time.sleep(2)
             connect = aclient.connect(host=host,port=port,cleansession=False)
             time.sleep(20)
             print("aclient.message = ", callback.messages)
@@ -1866,38 +1874,40 @@ class Test(unittest.TestCase):
         1.测试重连时重新投递未发送完的 mqtt 包
     """
     def test_redelivery_on_reconnect(self):
-      # redelivery on reconnect. When a QoS 1 or 2 exchange has not been completed, the server should retry the
-      # appropriate MQTT packets
-      print("Redelivery on reconnect test starting")
-      succeeded = True
-      try:
-        callback.clear()
-        callback2.clear()
-        bclient.connect(host=host, port=port, cleansession=True)
-        bclient.disconnect()
-        time.sleep(.1)
-        bclient.connect(host=host, port=port, cleansession=False)
-        bclient.subscribe([wildtopics[6]], [2])
-        bclient.pause() # stops responding to incoming publishes
-        bclient.publish(topics[1], b"", 1, retained=False)  #注释topics[1]=TopicA/B,
-        bclient.publish(topics[3], b"", 2, retained=False)  #注释topics[3]="TopicA/C"
-        time.sleep(1)
-        bclient.disconnect()
-        assert len(callback2.messages) == 0, "length should be 0: %s" % callback2.messages
-        bclient.resume()
-        bclient.connect(host=host, port=port, cleansession=False)
-        time.sleep(3)
-        print(callback2.messages)
-        assert len(callback2.messages) == 2
-        self.assertEqual(callback2.messages[0][1], b"")
-        self.assertEqual(callback2.messages[1][1], b"")
-        bclient.disconnect()
-      except:
-        traceback.print_exc()
-        succeeded = False
-      print("Redelivery on reconnect test", "succeeded" if succeeded else "failed")
-      self.assertEqual(succeeded, True)
-      return succeeded
+        # redelivery on reconnect. When a QoS 1 or 2 exchange has not been completed, the server should retry the
+        # appropriate MQTT packets
+        print("Redelivery on reconnect test starting")
+        succeeded = True
+        try:
+            callback.clear()
+            callback2.clear()
+            bclient.connect(host=host, port=port, cleansession=True)
+            bclient.disconnect()
+            time.sleep(.1)
+            bclient.connect(host=host, port=port, cleansession=False)
+            bclient.subscribe([wildtopics[6]], [2])
+            bclient.pause() # stops responding to incoming publishes
+            bclient.publish(topics[1], b"", 1, retained=False)  #注释topics[1]=TopicA/B,
+            bclient.publish(topics[3], b"", 2, retained=False)  #注释topics[3]="TopicA/C"
+            time.sleep(1)
+            bclient.disconnect()
+            print("callback2.messages : ", callback2.messages)
+            assert len(callback2.messages) == 0, "length should be 0: %s" % callback2.messages
+            bclient.resume()
+            time.sleep(1)
+            bclient.connect(host=host, port=port, cleansession=False)
+            time.sleep(5)
+            print("callback2.messages : ", callback2.messages)
+            assert len(callback2.messages) == 2
+            self.assertEqual(callback2.messages[0][1], b"")
+            self.assertEqual(callback2.messages[1][1], b"")
+        except:
+            traceback.print_exc()
+            succeeded = False
+        bclient.terminate()
+        print("Redelivery on reconnect test", "succeeded" if succeeded else "failed")
+        self.assertEqual(succeeded, True)
+        return succeeded
 
 
     @unittest.skip("notrun")
@@ -2738,11 +2748,12 @@ if __name__ == "__main__":
     root.setLevel(logging.ERROR)
 
     print("hostname", host, "port", port)
- 
-    for i in range(iterations):
-        unittest.main()
+    # for i in range(iterations):
+    #     unittest.main()
     #创建测试集
-    # suite = unittest.TestSuite()
+    suite = unittest.TestSuite()
+    suite.addTest(Test("time_fun"))
+
     # suite.addTest(Test("test_cleansession_false"))
     # suite.addTest(Test("test_seventh_topic_format"))
     # suite.addTest(Test("test_will_message_qos_one"))

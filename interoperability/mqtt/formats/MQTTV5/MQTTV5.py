@@ -422,13 +422,13 @@ class Properties(object):
        "Binary Data", "UTF-8 Encoded String", "UTF-8 String Pair"]
 
     self.names = {
-      "Payload Format Indicator" : 1, #publish消息message 是utf8编码数据（0代表是二进制）
-      "Message Expiry Interval" : 2,  #PUBLISH数据在Server的最长等待时间。超过这个时间，这个数据不能被publish到匹配topic的subscriber
+      "Payload Format Indicator" : 1, 
+      "Message Expiry Interval" : 2,  
       "Content Type" : 3,
       "Response Topic" : 8,
       "Correlation Data" : 9,
       "Subscription Identifier" : 11,
-      "Session Expiry Interval" : 17, #如果MQTT 5.0 不携带 Session Expiry Interval或者 Session Expiry Interval设置为0，server和client则不会保存session信息。如果Session Expiry Interval设置为0xffffffff，则表示session永远不会老化。
+      "Session Expiry Interval" : 17, 
       "Assigned Client Identifier" : 18,
       "Server Keep Alive" : 19,
       "Authentication Method" : 21,
@@ -439,13 +439,13 @@ class Properties(object):
       "Response Information" : 26,
       "Server Reference" : 28,
       "Reason String" : 31,
-      "Receive Maximum" : 33, #告知对方自己希望处理未决的最大的 Qos1 或者 Qos2 PUBLISH消息个数，如果不存在，则默认是65535
+      "Receive Maximum" : 33, 
       "Topic Alias Maximum" : 34,
       "Topic Alias" : 35,
-      "Maximum QoS" : 36, #Server 可以发送 Maximum QoS属性告知Client自己支持最大的Qos是多少，Client发送的PUBLISH的Qos必然不能大于该值。
+      "Maximum QoS" : 36,
       "Retain Available" : 37,
       "User Property" : 38,
-      "Maximum Packet Size" : 39, #最大发送消息字节大小
+      "Maximum Packet Size" : 39,
       "Wildcard Subscription Available" : 40,
       "Subscription Identifier Available" : 41,
       "Shared Subscription Available" : 42
