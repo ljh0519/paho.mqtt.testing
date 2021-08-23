@@ -1332,6 +1332,7 @@ class Test(unittest.TestCase):
         1.客户端订阅主题 a/+ 并指定订阅标识符为 2，订阅主题a/b 并指定订阅标识符为3
         2。主题为 a/b 的 PUBLISH 报文将会携带两个不同的订阅标识符，一个消息将触发两个不同的消息处理程序。
     """
+    @unittest.skip("Does not support")
     def test_subscribe_identifiers_one(self):
       callback.clear()
       callback2.clear()
@@ -1378,6 +1379,7 @@ class Test(unittest.TestCase):
         1.客户端订阅主题 a/# 并指定订阅标识符为 1，订阅主题a/b 并指定订阅标识符为 2。
         2.主题为 a/b 的 PUBLISH 报文将会携带两个不同的订阅标识符，一个消息将触发两个不同的消息处理程序。
     """
+    @unittest.skip("Does not support")
     def test_subscribe_identifiers_two(self):
       callback.clear()
       callback2.clear()
@@ -1748,22 +1750,24 @@ class Test(unittest.TestCase):
       测试client发送错误信息时server主动断开连接时，服务端是否发送disconnect消息
     """
     def test_server_disconnected_reasoncode(self):
-      aclient.setUserName(username1, password2)
-      succeeded = False
-      try:
-        aclient.connect(host=host,port=port,cleanstart=True)
-
-        publish_properties = MQTTV5.Properties(MQTTV5.PacketTypes.PUBLISH)
-        publish_properties.TopicAlias = 0 # topic alias 0 not allowed
-        print("pub messages is:topic alias 0 ")
-        print("pub is %s"%topics[0])
-        aclient.publish(topics[0], "topic alias 0", 1, properties=publish_properties)
-        self.waitfor(callback.disconnects, 1, 2)
-      except:
+        aclient.setUserName(username1, password1)
         succeeded = True
-      assert(succeeded,True)
-      print(callback.disconnects)
-      self.assertEqual(len(callback.disconnects), 1)
+        try:
+            aclient.connect(host=host,port=port,cleanstart=True)
+
+            publish_properties = MQTTV5.Properties(MQTTV5.PacketTypes.PUBLISH)
+            publish_properties.TopicAlias = 0 # topic alias 0 not allowed
+            print("pub messages is:topic alias 0 ")
+            print("pub is %s"%topics[0])
+            aclient.publish(topics[0], "topic alias 0", 1, properties=publish_properties)
+            self.waitfor(callback.disconnects, 1, 2)
+            time.sleep(1)
+            print("callback.disconnects : ", callback.disconnects)
+            self.assertEqual(len(callback.disconnects), 1)
+        except:
+            traceback.print_exc()
+            succeeded = False
+        assert(succeeded,True)
 
 
     """
@@ -2741,12 +2745,12 @@ def setData():
   # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
   # port = 2883 #发送端口
 
-  # username1,username2 = b"test1",b"test2"  #用户名称
-  # password1 = b"YWMtiCYs6OSDEeuGdB053BncBjud1H4FJUIyg7juB5eNw_2AMTFw35kR6738Gai-9H-cAwMAAAF6pElv8gBPGgAP8vEN2AeV0sbgj6GWIbLBGMHQqAu4VdOuf2d019epvw"  #用户密码，实际为与用户匹配的token
-  # password2 = b"YWMtnkYV7OSDEeuBOy0mz1Myzjud1H4FJUIyg7juB5eNw_2GdYCQ35kR67cbWRAQgcjJAwMAAAF6pEoA8QBPGgCojKn_bLuEtlysxYc0cHFTqDkw8O83B8NwEdu-6TAkKA"  #用户密码，实际为与用户匹配的token
-  # clientid1 = "test1@xt3gh0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-  # clientid2 = "test2@xt3gh0"
-  # appid = {"right_appid":"xt3gh0","error_appid":"123","noappid":""} #构建appid  
+  # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
+  # password1 = b"YWMt9tbuQvWWEeuLg_GXhAHXzegrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF7FDIOewBPGgDX33vGul0XRp8mR4oexcZndUGfgJ9gUgHCZ7ISvcMdiQ"  #用户密码，实际为与用户匹配的token
+  # password2 = b"YWMt70nLaPWWEeuJd-_o_M93Z-grzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF7FDHc_gBPGgD8F9qyGPV-gYYOnK98sm32nzi0FxfRt4OxrneXEljnxg"  #用户密码，实际为与用户匹配的token
+  # clientid1 = "test1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  # clientid2 = "test2@1PGUGY"
+  # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid  
 
   #EMQ地址
   # host = "broker.emqx.io"
@@ -2762,6 +2766,9 @@ def setData():
   clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
   clientid2 = "test-ljh2@1PGUGY"
   appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+
+
+
   # clientid1 = "mqtttest1@1wyp94"  #开启鉴权后clientid格式为deviceid@appid deviceid任意取值，只要保证唯一。
   # clientid2 = "mqtttest2@1wyp94"
   # clientid3 = "mqtttest3@1wyp94"

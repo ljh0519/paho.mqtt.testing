@@ -248,8 +248,8 @@ class Test(unittest.TestCase):
     # port = 2883 #发送端口
 
     # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
-    # password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
-    # password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+    # password1 = b"YWMteXSktPDuEeutgH04OqrrpegrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF69ar0ngBPGgATORKENzbXY6ReNr40jtFQf_FUiJgV0rfzqkBbpInKYA"  #用户密码，实际为与用户匹配的token
+    # password2 = b"YWMtg30nzvDuEeudeDFA1RJSv-grzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF69as2XwBPGgALX41019AIr5hwP1fNcKa5TG0-Ysf1HbnPAnjE1IADjQ"  #用户密码，实际为与用户匹配的token
     # clientid1 = "test1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
     # clientid2 = "test2@1PGUGY"
     # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
@@ -475,10 +475,10 @@ class Test(unittest.TestCase):
                     aclient.publish(topics[i],b"publish topic qos1", 1, retained=False)
                     print("third")
                     aclient.publish(topics[i],b"publish topic qos2", 2, retained=False)
-                    time.sleep(1)
+                    time.sleep(.5)
         except:
             succeeded = False
-        time.sleep(20)
+        time.sleep(10)
         print(len(callback.messages))
         print(len(callback.messages))
         assert len(callback.messages) == number*3*8
@@ -1696,10 +1696,10 @@ class Test(unittest.TestCase):
             time.sleep(30)
             bclient.disconnect()
             print("用户A重新连接获取消息")
-            # connect = aclient.connect(host=host,port=port,cleansession=False)
-            # time.sleep(40)
-            # print(callback.messages)
-            # aclient.disconnect()
+            connect = aclient.connect(host=host,port=port,cleansession=False)
+            time.sleep(40)
+            print(callback.messages)
+            aclient.disconnect()
             # bclient.disconnect()
         except:
             traceback.print_exc()
