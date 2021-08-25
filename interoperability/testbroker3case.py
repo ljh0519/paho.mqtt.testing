@@ -244,26 +244,27 @@ class Test(unittest.TestCase):
     authentication = False
 
     # # 1.使用沙箱环境测试
-    # host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
-    # port = 2883 #发送端口
-
-    # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
-    # password1 = b"YWMteXSktPDuEeutgH04OqrrpegrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF69ar0ngBPGgATORKENzbXY6ReNr40jtFQf_FUiJgV0rfzqkBbpInKYA"  #用户密码，实际为与用户匹配的token
-    # password2 = b"YWMtg30nzvDuEeudeDFA1RJSv-grzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF69as2XwBPGgALX41019AIr5hwP1fNcKa5TG0-Ysf1HbnPAnjE1IADjQ"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "test1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "test2@1PGUGY"
-    # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
-
-    #2.使用本地环境测试
-    host = "172.17.1.160"
-    port = 1883
+    host = "mqtt-ejabberd-hsb.easemob.com"   #发送地址
+    port = 2883 #发送端口
 
     username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
-    password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
-    password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
-    clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    clientid2 = "test-ljh2@1PGUGY"
+    password1 = b"YWMteXSktPDuEeutgH04OqrrpegrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF69ar0ngBPGgATORKENzbXY6ReNr40jtFQf_FUiJgV0rfzqkBbpInKYA"  #用户密码，实际为与用户匹配的token
+    password2 = b"YWMtg30nzvDuEeudeDFA1RJSv-grzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF69as2XwBPGgALX41019AIr5hwP1fNcKa5TG0-Ysf1HbnPAnjE1IADjQ"  #用户密码，实际为与用户匹配的token
+    clientid1 = "test1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    clientid2 = "test2@1PGUGY"
     appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+
+    #2.使用本地环境测试
+    # host = "172.17.1.160"
+    # host = "192.168.31.170"
+    # port = 1883
+
+    # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
+    # password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+    # password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "test-ljh2@1PGUGY"
+    # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
 
 
     ## 3.使用灰度环境测试
@@ -277,15 +278,17 @@ class Test(unittest.TestCase):
     # appid = {"right_appid":"u84xg0","error_appid":"123","noappid":""} #构建appid
 
 
-    # ##4.线上环境测试
-    # host = "bdpyi0.cn1.mqtt.chat"
+
+    # 线上地址
+    # host = "vwp0b0.cn1.mqtt.chat"
     # port = 1883
-    # username1,username2 = b"new1",b"new2"  #用户名称
-    # password1 = b"$t$YWMtpG0uYrL0EeuGLUkgSfGw9i6oxDHX8UASjSSl-6v2g7OekGaAsvQR672TY9Z5F5-wAwMAAAF5X4CjUwBPGgDmR-rf1qq5gd4rxFZY7ZiMNQWG5dMaiFBCtyVhvzx49Q"  #用户密码，实际为与用户匹配的token
-    # password2 = b"$t$YWMtslqysLL0Eeuu7p3XNsOlBi6oxDHX8UASjSSl-6v2g7OxRklwsvQR66wYB3sAeEB5AwMAAAF5X4D-mgBPGgCRorD-alGlixP9pwCllqPF2BTI6GQ_8738dkV4fJG-lg"  #用户密码，实际为与用户匹配的token
-    # clientid1 = "new1@bdpyi0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-    # clientid2 = "new2@bdpyi0"
-    # appid = {"right_appid":"bdpyi0","error_appid":"123","noappid":""} #构建appid
+
+    # username1,username2 = b"vimin1",b"vimin1"  #用户名称
+    # password1 = b"YWMtMwYfHATzEeyeoB30FmeYgt3lYG0Rw0vfpZmMAY3vLdtWZQMgBPIR7II09wz_zQZSAwMAAAF7eNxaPABPGgCCOiFXqHh9jpIlUJu3YJoU8H8F7T5jd6pacCUMe7BSNw"  #用户密码，实际为与用户匹配的token
+    # password2 = b"YWMtMwYfHATzEeyeoB30FmeYgt3lYG0Rw0vfpZmMAY3vLdtWZQMgBPIR7II09wz_zQZSAwMAAAF7eNxaPABPGgCCOiFXqHh9jpIlUJu3YJoU8H8F7T5jd6pacCUMe7BSNw"  #用户密码，实际为与用户匹配的token
+    # clientid1 = "test-ljh1@vwp0b0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+    # clientid2 = "test-ljh2@vwp0b0"
+    # appid = {"right_appid":"vwp0b0","error_appid":"123","noappid":""} #构建appid
 
 
     #各种不同topic格式
@@ -430,6 +433,11 @@ class Test(unittest.TestCase):
         connack = bclient.connect(host=host,port=port)
         succeeded = True
         try:
+            # aclient.subscribe([topics[0]], [2])
+            # bclient.subscribe([topics[0]], [2])
+            # time.sleep(.5)
+            # aclient.unsubscribe([topics[0]])
+            # bclient.unsubscribe([topics[0]])
             for i in range(len(topics)):
                 print(i)
                 aclient.subscribe([topics[i]], [2])
@@ -1552,7 +1560,12 @@ class Test(unittest.TestCase):
         try:
             # message queueing for offline clients
             callback.clear()
+            connack = aclient.connect(host=host, port=port, cleansession=True)
+            time.sleep(.1)
+            aclient.disconnect()
+            time.sleep(.1)
             #用户A登陆
+            
             connack = aclient.connect(host=host, port=port, cleansession=False)
             #用户A订阅一个topic
             aclient.subscribe([wildtopics[5]], [2])
@@ -1697,7 +1710,7 @@ class Test(unittest.TestCase):
             bclient.disconnect()
             print("用户A重新连接获取消息")
             connect = aclient.connect(host=host,port=port,cleansession=False)
-            time.sleep(40)
+            time.sleep(50)
             print(callback.messages)
             aclient.disconnect()
             # bclient.disconnect()

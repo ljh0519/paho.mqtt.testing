@@ -2757,15 +2757,28 @@ def setData():
   # port = 1883
 
   # # 本地地址
-  host = "172.17.1.160"
+  # host = "172.17.1.160"
+  # port = 1883
+
+  # username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
+  # password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
+  # password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
+  # clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  # clientid2 = "test-ljh2@1PGUGY"
+  # appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+
+
+
+  # 线上地址
+  host = "teljh0.cn1.mqtt.chat"
   port = 1883
 
-  username1,username2 = b"test-ljh",b"test-ljh2"  #用户名称
-  password1 = b"YWMt5641htfoEeuzjKErDIFCPugrzF8zZk2Wp8GS3pF-orBzFBswjHIR66up95didFMbAwMAAAF6Ua9qawBPGgC00Ao3kcePo7PbyWuuTTdzfJupSABf_DJeu6wxF86nQw"  #用户密码，实际为与用户匹配的token
-  password2 = b"YWMtBeUx0NfpEeuG9u0EJlumBegrzF8zZk2Wp8GS3pF-orBnUI9QkdAR66aBgQQ44eDgAwMAAAF6UbAwbwBPGgCZG2uBHDrvCLM7SH4UTlW3piJwMgU5bfGByO8pgLz77Q"  #用户密码，实际为与用户匹配的token
-  clientid1 = "test-ljh1@1PGUGY"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
-  clientid2 = "test-ljh2@1PGUGY"
-  appid = {"right_appid":"1PGUGY","error_appid":"123","noappid":""} #构建appid
+  username1,username2 = b"test123",b"test123"  #用户名称
+  password1 = b"YWMt6lomYATxEeykFrOQaLue5cqURI5GwUUwlzbA2IRaSlffLLAABPER7LvNMQrDXeeAAwMAAAF7eNPwQABPGgB1z3iGbi8W4NHf-wM8K8Juj6wUkOMQ83n8CUxp5JVqZA"  #用户密码，实际为与用户匹配的token
+  password2 = b"YWMt6lomYATxEeykFrOQaLue5cqURI5GwUUwlzbA2IRaSlffLLAABPER7LvNMQrDXeeAAwMAAAF7eNPwQABPGgB1z3iGbi8W4NHf-wM8K8Juj6wUkOMQ83n8CUxp5JVqZA"  #用户密码，实际为与用户匹配的token
+  clientid1 = "test-ljh1@teljh0"  #开启鉴权后clientid格式为deviceid@appkeyappid deviceid任意取值，只要保证唯一。
+  clientid2 = "test-ljh2@teljh0"
+  appid = {"right_appid":"teljh0","error_appid":"123","noappid":""} #构建appid
 
 
 
