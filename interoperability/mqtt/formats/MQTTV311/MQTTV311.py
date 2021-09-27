@@ -735,7 +735,7 @@ class Subacks(Packets):
     self.data = []
     while leftlen > 0:
       qos = buffer[-leftlen]
-      assert qos in [0, 1, 2, 0x80], "[MQTT-3.9.3-2] return code in QoS must be 0, 1, 2 or 0x80"
+      assert qos in [0, 1, 2, 0x80], ("[MQTT-3.9.3-2] return code in QoS must be 0, 1, 2 or 0x80, curr =", qos)
       leftlen -= 1
       self.data.append(qos)
     assert leftlen == 0
